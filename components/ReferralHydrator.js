@@ -18,6 +18,8 @@ export default function ReferralHydrator() {
         // --- 2. AUTO-APPEND REF CODE FOR LOGGED-IN USERS ---
         const fetchUserData = async () => {
             try {
+                if (!document.cookie.includes('auth_token=')) return;
+
                 // Check if we are already authenticated
                 const res = await fetch('/api/user/referrals');
                 if (res.ok) {

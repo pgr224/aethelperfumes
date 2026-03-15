@@ -1,6 +1,5 @@
 import prisma from '@/lib/prisma';
 export const dynamic = 'force-dynamic';
-export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';

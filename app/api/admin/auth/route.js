@@ -1,15 +1,16 @@
-import prisma from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
 
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this';
 
 export async function POST(request) {
     try {
+        const { default: prisma } = await import('@/lib/prisma');
         const { email, password } = await request.json();
 
         const user = await prisma.user.findUnique({

@@ -8,6 +8,11 @@ export default function AmbassadorBanner() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        if (!document.cookie.includes('auth_token=')) {
+            setLoading(false);
+            return;
+        }
+
         fetch('/api/user/referrals')
             .then(res => res.ok ? res.json() : null)
             .then(json => {
