@@ -1,0 +1,219 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Category {
+  id          Int       @id @default(autoincrement())
+  name        String
+  slug        String    @unique
+  description String?
+  image       String?
+  productCount Int      @default(0)
+  createdAt   DateTime  @default(now())
+  products    Product[]
+}
+
+model Product {
+  id            Int         @id @default(autoincrement())
+  name          String
+  slug          String      @unique
+  description   String
+  shortDesc     String?
+  price         Float
+  salePrice     Float?
+  images        String      // JSON array of image URLs
+  categoryId    Int
+  category      Category    @relation(fields: [categoryId], references: [id])
+  badge         String?     // "new", "sale", "bestseller"
+  rating        Float       @default(0)
+  reviewCount   Int         @default(0)
+  inStock       Boolean     @default(true)
+  stock         Int         @default(0)
+  volume        String?     // e.g. "100ml"
+  notes         String?     // fragrance notes
+  featured      Boolean     @default(false)
+  exclusiveForTier String?  // e.g. "GOLD"
+  createdAt     DateTime    @default(now())
+  cartItems     CartItem[]
+  orderItems    OrderItem[]
+}
+
+model User {
+  id              Int       @id @default(autoincrement())
+  email           String    @unique
+  password        String
+  firstName       String?
+  lastName        String?
+  name            String?   // Keeping for backwards compatibility with admin
+  role            String    @default("admin") // 'admin', 'manager', or 'customer'
+  referralCode    String?   @unique
+  referralBalance Float     @default(0)
+  referralTier    String    @default("BRONZE") // BRONZE, SILVER, GOLD
+  refEmailNotifications    Boolean @default(true)
+  refWhatsAppNotifications Boolean @default(true)
+  referredById    Int?
+  referredBy      User?     @relation("UserReferrals", fields: [referredById], references: [id])
+  referrals       User[]    @relation("UserReferrals")
+  createdAt       DateTime  @default(now())
+  orders          Order[]
+  referralsGiven  Referral[] @relation("Referrer")
+  referralsRecv   Referral[] @relation("Referee")
+}
+
+model CartItem {
+  id        Int      @id @default(autoincrement())
+  sessionId String
+  productId Int
+  product   Product  @relation(fields: [productId], references: [id])
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now())
+
+  @@unique([sessionId, productId])
+}
+
+model Order {
+  id          Int         @id @default(autoincrement())
+  orderNumber String      @unique
+  userId      Int?        // Optional tie to registered user
+  user        User?       @relation(fields: [userId], references: [id])
+  email       String
+  firstName   String
+  lastName    String
+  address     String
+  city        String
+  zipCode     String
+  country     String
+  phone       String?
+  subtotal    Float
+  shipping    Float       @default(0)
+  discount    Float       @default(0)
+  couponCode  String?
+  paymentMethod String  @default("UPI")
+  total       Float
+  status          String      @default("pending")
+  trackingNumber  String?
+  carrier         String?
+  cancelReason      String?
+  cancelledAt       DateTime?
+  cancelledBy       String?     // "customer", "admin", or "manager"
+  statusHistory     String?     // JSON array of {status, timestamp, actor}
+  estimatedDelivery DateTime?
+  recoveryEmailSent Boolean   @default(false)
+  createdAt       DateTime    @default(now())
+  items           OrderItem[]
+}
+
+model OrderItem {
+  id        Int     @id @default(autoincrement())
+  orderId   Int
+  order     Order   @relation(fields: [orderId], references: [id])
+  productId Int
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int
+  price     Float
+}
+
+
+model BlogPost {
+  id        Int      @id @default(autoincrement())
+  title     String
+  slug      String   @unique
+  excerpt   String
+  content   String
+  image     String?
+  author    String   @default("Editorial Team")
+  createdAt DateTime @default(now())
+}
+
+model HeroSlide {
+  id          Int    @id @default(autoincrement())
+  title       String
+  subtitle    String
+  description String?
+  ctaText     String @default("Shop Now")
+  ctaLink     String @default("/products")
+  cta2Text    String?
+  cta2Link    String?
+  image       String?
+  sortOrder   Int    @default(0)
+}
+
+model SiteSetting {
+  id    Int    @id @default(autoincrement())
+  key   String @unique
+  value String
+}
+
+model Promotion {
+  id                 Int       @id @default(autoincrement())
+  name               String
+  description        String?
+  discountPercentage Float
+  categoryId         Int?      // Null means all products
+  status             String    @default("scheduled") // scheduled, active, completed, cancelled
+  startDate          DateTime
+  endDate            DateTime
+  bannerTitle        String?   // For dynamic hero sync
+  bannerSubtitle     String?
+  bannerImage        String?
+  createdAt          DateTime  @default(now())
+}
+
+
+model Referral {
+  id          Int      @id @default(autoincrement())
+  referrerId  Int
+  referrer    User     @relation("Referrer", fields: [referrerId], references: [id])
+  refereeId   Int      @unique // A user can only be referred once
+  referee     User     @relation("Referee", fields: [refereeId], references: [id])
+  status      String   @default("PENDING") // PENDING, COMPLETED, INVALID
+  rewardAmount Float   @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model StaticPage {
+  id        Int      @id @default(autoincrement())
+  title     String
+  slug      String   @unique
+  content   String
+  updatedAt DateTime @updatedAt
+}
+
+model Coupon {
+  id              Int       @id @default(autoincrement())
+  code            String    @unique
+  discountType    String    // "PERCENTAGE" or "FIXED"
+  discountValue   Float
+  minOrderAmount  Float?
+  maxDiscount     Float?
+  expiryDate      DateTime?
+  usageLimit      Int?
+  usedCount       Int       @default(0)
+  isActive        Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+}
+
+model NewsletterSubscriber {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+model Testimonial {
+  id         Int      @id @default(autoincrement())
+  name       String
+  role       String?
+  content    String
+  rating     Int      @default(5)
+  avatar     String?
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+}

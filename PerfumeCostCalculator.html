@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>ATHEL Perfume Formula Calculator</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #111;
+            color: white;
+            padding: 30px;
+        }
+
+        h1 {
+            color: gold;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        td,
+        th {
+            border: 1px solid #444;
+            padding: 8px;
+            text-align: center;
+        }
+
+        input {
+            width: 80px;
+            padding: 5px;
+        }
+
+        button {
+            padding: 10px;
+            background: gold;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .result {
+            font-size: 20px;
+            margin-top: 20px;
+            color: #00ffcc;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>ATHEL Perfume Formula Generator</h1>
+
+    <h3>Ingredient Inputs</h3>
+
+    <table id="ingredients">
+        <tr>
+            <th>Ingredient</th>
+            <th>% in Formula</th>
+            <th>Cost per ml (₹)</th>
+            <th>Cost Contribution</th>
+        </tr>
+
+        <tr>
+            <td>Iso E Super</td>
+            <td><input type="number" value="30"></td>
+            <td><input type="number" value="2"></td>
+            <td class="cost"></td>
+        </tr>
+
+        <tr>
+            <td>Ambroxan</td>
+            <td><input type="number" value="10"></td>
+            <td><input type="number" value="20"></td>
+            <td class="cost"></td>
+        </tr>
+
+        <tr>
+            <td>Hedione</td>
+            <td><input type="number" value="20"></td>
+            <td><input type="number" value="3.5"></td>
+            <td class="cost"></td>
+        </tr>
+
+        <tr>
+            <td>Galaxolide</td>
+            <td><input type="number" value="15"></td>
+            <td><input type="number" value="1.8"></td>
+            <td class="cost"></td>
+        </tr>
+
+        <tr>
+            <td>Cashmeran</td>
+            <td><input type="number" value="10"></td>
+            <td><input type="number" value="7"></td>
+            <td class="cost"></td>
+        </tr>
+
+        <tr>
+            <td>Amber Accord</td>
+            <td><input type="number" value="15"></td>
+            <td><input type="number" value="3"></td>
+            <td class="cost"></td>
+        </tr>
+
+    </table>
+
+    <button onclick="calculate()">Calculate Cost</button>
+
+    <h3>Perfume Composition</h3>
+
+    Fragrance Oil %
+    <input id="oil" type="number" value="12">
+
+    Alcohol %
+    <input id="alcohol" type="number" value="86">
+
+    DPG %
+    <input id="dpg" type="number" value="2">
+
+    <div class="result" id="result"></div>
+
+    <script>
+
+        function calculate() {
+
+            let table = document.getElementById("ingredients");
+            let rows = table.rows;
+
+            let totalCost = 0;
+
+            for (let i = 1; i < rows.length; i++) {
+
+                let percent = rows[i].cells[1].children[0].value;
+                let cost = rows[i].cells[2].children[0].value;
+
+                let contribution = (percent / 100) * cost * 100;
+
+                rows[i].cells[3].innerHTML = contribution.toFixed(2);
+
+                totalCost += contribution;
+
+            }
+
+            let oilPercent = document.getElementById("oil").value;
+
+            let perfumeCost = (totalCost * (oilPercent / 100));
+
+            document.getElementById("result").innerHTML =
+                "Fragrance Concentrate Cost (100ml) = ₹" + totalCost.toFixed(2)
+                + "<br>Perfume Liquid Cost (100ml) = ₹" + perfumeCost.toFixed(2);
+
+        }
+
+    </script>
+
+</body>
+
+</html>
