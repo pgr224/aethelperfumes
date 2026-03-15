@@ -6,6 +6,8 @@ export const metadata = {
     description: 'Explore our curated fragrance collections — from Eau de Parfum to rare Oriental compositions and fresh Colognes.'
 };
 
+export const dynamic = 'force-dynamic';
+
 export default async function CollectionsPage() {
     const categories = await prisma.category.findMany({
         include: {
