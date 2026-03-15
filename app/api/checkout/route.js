@@ -1,4 +1,5 @@
 import prisma from '@/lib/prisma';
+export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth';
 import { v4 as uuidv4 } from 'uuid';
@@ -232,3 +233,4 @@ export async function POST(request) {
         return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 });
     }
 }
+

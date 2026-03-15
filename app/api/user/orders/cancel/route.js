@@ -1,4 +1,5 @@
 import prisma from '@/lib/prisma';
+export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth';
 import { canCancelOrder, buildStatusEntry, appendStatusHistory } from '@/lib/cancellation';
@@ -82,3 +83,4 @@ export async function POST(request) {
         return NextResponse.json({ error: 'Failed to process cancellation request.' }, { status: 500 });
     }
 }
+

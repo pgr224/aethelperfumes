@@ -1,4 +1,5 @@
 import prisma from '@/lib/prisma';
+export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 
 export async function GET() {
@@ -50,3 +51,4 @@ export async function POST(request) {
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }
+

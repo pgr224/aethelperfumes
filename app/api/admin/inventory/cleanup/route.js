@@ -1,4 +1,5 @@
 import prisma from '@/lib/prisma';
+export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import { sendRecoveryEmail } from '@/lib/mail';
 
@@ -156,3 +157,4 @@ export async function POST() {
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }
+

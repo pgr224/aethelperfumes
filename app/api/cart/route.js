@@ -1,4 +1,5 @@
 import prisma from '@/lib/prisma';
+export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { v4 as uuidv4 } from 'uuid';
@@ -137,3 +138,4 @@ export async function DELETE(request) {
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }
+

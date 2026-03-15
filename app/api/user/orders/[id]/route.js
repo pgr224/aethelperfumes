@@ -1,4 +1,6 @@
 import prisma from '@/lib/prisma';
+export const dynamic = 'force-dynamic';
+export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth';
 import { canCancelOrder } from '@/lib/cancellation';

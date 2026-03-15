@@ -1,4 +1,5 @@
 import prisma from '@/lib/prisma';
+export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
@@ -62,3 +63,4 @@ export async function POST(request) {
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }
+
