@@ -4,6 +4,10 @@
   "name": "aethelperfumes",
   "compatibility_date": "2025-03-01",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "vars": {
+    "PRISMA_DB_PROVIDER": "postgres",
+    "NODE_ENV": "production"
+  },
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS"

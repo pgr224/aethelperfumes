@@ -6,7 +6,7 @@ dotenv.config({ path: '.env.local', override: true });
 
 const isPlaceholder = (value) => {
   if (!value) return true;
-  return value.includes('[2204asw@SupaA]');
+  return value.includes('[YOUR-SUPABASE-DB-PASSWORD]');
 };
 
 const provider = process.env.PRISMA_DB_PROVIDER || 'postgres';
@@ -26,7 +26,7 @@ const isDbTouchingPrismaCommand =
   /\bstudio\b/.test(invocation) ||
   /\bseed\b/.test(invocation);
 
-const databaseUrl = 'postgresql://postgres.hyrpuignsmmatkekjaly:2204asw%40SupaA@aws-1-ap-southeast-1.pooler.supabase.com:6543/postgres?pgbouncer=true&sslmode=require';
+const databaseUrl = process.env.DATABASE_URL;
 const directUrl = process.env.DIRECT_URL || databaseUrl;
 const sqliteUrl = process.env.SQLITE_DATABASE_URL || 'file:./prisma/dev.db';
 
@@ -71,7 +71,8 @@ export default defineConfig({
   schema: isSqlite ? 'prisma/schema.sqlite.prisma' : 'prisma/schema.prisma',
 
   datasource: {
-    url: isSqlite ? sqliteUrl : effectivePostgresUrl
+    url: isSqlite ? sqliteUrl : effectivePostgresUrl,
+    directUrl: isSqlite ? undefined : effectivePostgresUrl
   }
 });
 
