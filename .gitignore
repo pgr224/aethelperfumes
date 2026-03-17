@@ -42,4 +42,6 @@ next-env.d.ts
 /lumiere.zip
 dev.db
 prisma/dev.db
+.open-next/
+.wrangler/
 

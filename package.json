@@ -19,9 +19,14 @@
     "db:migrate:supabase": "cross-env PRISMA_DB_PROVIDER=postgres prisma migrate deploy --schema prisma/schema.prisma",
     "deploy:preview": "npx vercel",
     "deploy:prod": "npx vercel --prod",
+    "cf:preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
+    "cf:deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
+    "cf:upload": "opennextjs-cloudflare build && opennextjs-cloudflare upload",
+    "cf:typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
     "lint": "eslint"
   },
   "dependencies": {
+    "@opennextjs/cloudflare": "^1.17.1",
     "@prisma/adapter-better-sqlite3": "^7.5.0",
     "@prisma/adapter-pg": "^7.5.0",
     "@prisma/client": "^7.5.0",
@@ -45,6 +50,7 @@
     "dotenv": "^17.3.1",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
-    "prisma": "^7.5.0"
+    "prisma": "^7.5.0",
+    "wrangler": "^4.74.0"
   }
 }
