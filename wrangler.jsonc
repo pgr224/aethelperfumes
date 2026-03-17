@@ -1,7 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "main": ".open-next/worker.js",
-  "name": "perfume2",
+  "name": "aethelperfumes",
   "compatibility_date": "2025-03-01",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "assets": {
@@ -11,9 +11,7 @@
   "services": [
     {
       "binding": "WORKER_SELF_REFERENCE",
-      "service": "perfume2"
+      "service": "aethelperfumes"
     }
-  ],
-// wrangler.jsonc
-"name": "aethelperfumes",
+  ]
 }
