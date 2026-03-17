@@ -13,5 +13,7 @@
       "binding": "WORKER_SELF_REFERENCE",
       "service": "perfume2"
     }
-  ]
+  ],
+// wrangler.jsonc
+"name": "aethelperfumes",
 }
