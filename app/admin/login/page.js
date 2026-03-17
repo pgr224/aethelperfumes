@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { readJsonResponse } from '@/lib/read-json-response';
 
 export default function AdminLogin() {
     const [email, setEmail] = useState('');
@@ -22,12 +23,18 @@ export default function AdminLogin() {
                 body: JSON.stringify({ email, password }),
             });
 
-            const data = await res.json();
+            const data = await readJsonResponse(res).catch(async (error) => {
+                if (!res.ok) {
+                    return { error: error.message || 'Login failed' };
+                }
+
+                throw error;
+            });
 
             if (res.ok) {
                 router.push('/admin');
             } else {
-                setError(data.error || 'Login failed');
+                setError(data?.error || 'Login failed');
             }
         } catch (err) {
             setError('An error occurred. Please try again.');

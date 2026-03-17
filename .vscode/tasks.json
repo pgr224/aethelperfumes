@@ -1,0 +1,56 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Local: Dev (SQLite)",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "local"],
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "Local: Seed Admin (SQLite)",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "local:seed"],
+      "problemMatcher": []
+    },
+    {
+      "label": "Local: Seed + Dev (SQLite)",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "local:bootstrap"],
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "Vercel: Deploy Preview",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "deploy:preview"],
+      "problemMatcher": []
+    },
+    {
+      "label": "Vercel: Deploy Production",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "deploy:prod"],
+      "problemMatcher": []
+    },
+    {
+      "label": "Supabase: Preview Seed",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "db:seed:supabase:preview"],
+      "problemMatcher": []
+    },
+    {
+      "label": "Supabase: Production Seed (Guarded)",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "db:seed:supabase:prod"],
+      "problemMatcher": []
+    }
+  ]
+}

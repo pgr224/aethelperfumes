@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { readJsonResponse } from '@/lib/read-json-response';
 
 export default function Header({ previewSettings = null, isPreview = false }) {
     const pathname = usePathname();
@@ -22,7 +23,11 @@ export default function Header({ previewSettings = null, isPreview = false }) {
         const fetchCart = async () => {
             try {
                 const res = await fetch('/api/cart');
-                const data = await res.json();
+                if (!res.ok) {
+                    throw new Error(await res.text());
+                }
+
+                const data = await readJsonResponse(res);
                 setCartCount(data.count || 0);
             } catch (e) {
                 console.error('Cart fetch failed', e);
@@ -47,9 +52,17 @@ export default function Header({ previewSettings = null, isPreview = false }) {
             return;
         }
         const fetchSettings = async () => {
-            const res = await fetch('/api/admin/settings');
-            const data = await res.json();
-            if (data.settings?.logoUrl) setLogo(data.settings.logoUrl);
+            try {
+                const res = await fetch('/api/admin/settings');
+                if (!res.ok) {
+                    throw new Error(await res.text());
+                }
+
+                const data = await readJsonResponse(res);
+                if (data?.settings?.logoUrl) setLogo(data.settings.logoUrl);
+            } catch (error) {
+                console.error('Header settings fetch failed', error);
+            }
         };
         fetchSettings();
     }, [previewSettings]);

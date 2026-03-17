@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
+import { readJsonResponse } from '@/lib/read-json-response';
 
 export default function PromoBar() {
     const pathname = usePathname();
@@ -12,7 +13,11 @@ export default function PromoBar() {
         const fetchPromo = async () => {
             try {
                 const res = await fetch('/api/admin/settings');
-                const data = await res.json();
+                if (!res.ok) {
+                    throw new Error(await res.text());
+                }
+
+                const data = await readJsonResponse(res);
                 if (data.settings) {
                     setPromo({
                         active: data.settings.promoActive === 'true' || data.settings.promoActive === true,
@@ -29,7 +34,7 @@ export default function PromoBar() {
         fetchPromo();
     }, []);
 
-    if (loading || !promo.active || !promo.text || pathname.startsWith('/admin')) return null;
+    if (loading || !promo.active || !promo.text || pathname?.startsWith('/admin')) return null;
 
 
     return (

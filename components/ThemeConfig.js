@@ -1,12 +1,17 @@
 'use client';
 import { useEffect } from 'react';
+import { readJsonResponse } from '@/lib/read-json-response';
 
 export default function ThemeConfig() {
     useEffect(() => {
         const applyTheme = async () => {
              try {
                 const res = await fetch('/api/admin/settings');
-                const data = await res.json();
+                if (!res.ok) {
+                    throw new Error(await res.text());
+                }
+
+                const data = await readJsonResponse(res);
                 const settings = data.settings || {};
 
                 if (settings.primaryColor) {
