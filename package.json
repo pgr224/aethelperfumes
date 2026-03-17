@@ -7,7 +7,7 @@
     "local:bootstrap": "npm run local:seed && npm run local",
     "build": "cross-env PRISMA_DB_PROVIDER=postgres prisma generate --schema prisma/schema.prisma && cross-env PRISMA_DB_PROVIDER=postgres next build --webpack",
     "build:open": "cross-env PRISMA_DB_PROVIDER=postgres prisma generate --schema prisma/schema.prisma && cross-env PRISMA_DB_PROVIDER=postgres npx @opennextjs/cloudflare build",    
-    "cf:build": "npx @opennextjs/cloudflare build",
+    "cf:build": "cross-env PRISMA_DB_PROVIDER=postgres prisma generate --schema prisma/schema.prisma && cross-env PRISMA_DB_PROVIDER=postgres npx @opennextjs/cloudflare build",
     "dev": "cross-env PRISMA_DB_PROVIDER=sqlite SQLITE_DATABASE_URL=file:./prisma/dev.db prisma generate --schema prisma/schema.sqlite.prisma && cross-env PRISMA_DB_PROVIDER=sqlite SQLITE_DATABASE_URL=file:./prisma/dev.db next dev",
     "deploy": "npm run cf:deploy",
     "start": "cross-env PRISMA_DB_PROVIDER=sqlite SQLITE_DATABASE_URL=file:./prisma/dev.db prisma generate --schema prisma/schema.sqlite.prisma && cross-env PRISMA_DB_PROVIDER=sqlite SQLITE_DATABASE_URL=file:./prisma/dev.db next start",
