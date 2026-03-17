@@ -71,8 +71,7 @@ export default defineConfig({
   schema: isSqlite ? 'prisma/schema.sqlite.prisma' : 'prisma/schema.prisma',
 
   datasource: {
-    url: isSqlite ? sqliteUrl : effectivePostgresUrl,
-    directUrl: isSqlite ? undefined : effectivePostgresUrl
+    url: isSqlite ? sqliteUrl : effectivePostgresUrl
   }
 });
 
