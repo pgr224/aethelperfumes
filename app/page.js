@@ -13,21 +13,38 @@ import Link from 'next/link';
 export const dynamic = 'force-dynamic';
 
 export default async function Home() {
-  // Fetch featured products for the "Bestsellers" section
-  const productsRaw = await prisma.product.findMany({
-    where: { featured: true },
-    include: { category: true },
-    take: 8,
-    orderBy: { createdAt: 'desc' }
-  });
+  let featuredProducts = [];
+  let settings = {};
 
-  const featuredProducts = productsRaw.map(p => ({
-    ...p,
-    images: typeof p.images === 'string' ? JSON.parse(p.images) : p.images
-  }));
+  try {
+    const productsRaw = await prisma.product.findMany({
+      where: { featured: true },
+      include: { category: true },
+      take: 8,
+      orderBy: { createdAt: 'desc' }
+    });
 
-  const settingsRaw = await prisma.siteSetting.findMany();
-  const settings = settingsRaw.reduce((acc, curr) => ({ ...acc, [curr.key]: curr.value }), {});
+    featuredProducts = productsRaw.map((product) => {
+      let images = product.images;
+      if (typeof product.images === 'string') {
+        try {
+          images = JSON.parse(product.images);
+        } catch {
+          images = [];
+        }
+      }
+
+      return {
+        ...product,
+        images
+      };
+    });
+
+    const settingsRaw = await prisma.siteSetting.findMany();
+    settings = settingsRaw.reduce((acc, curr) => ({ ...acc, [curr.key]: curr.value }), {});
+  } catch (error) {
+    console.error('Home page data load failed', error);
+  }
 
 
   return (
