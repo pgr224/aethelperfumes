@@ -6,7 +6,7 @@ const nextConfig = {
   serverExternalPackages: ['@prisma/client'],
   webpack: (config, { isServer }) => {
     if (isServer) {
-      config.externals.push('better-sqlite3', 'pg', '@prisma/adapter-pg', '@prisma/adapter-better-sqlite3');
+      config.externals.push('better-sqlite3', '@prisma/adapter-better-sqlite3');
     }
     return config;
   },
