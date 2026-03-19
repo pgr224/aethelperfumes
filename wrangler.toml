@@ -1,5 +1,6 @@
 name = "aethelperfumes"
 pages_build_output_dir = ".open-next"
+compatibility_date = "2024-11-12"
 
 [env.production]
 compatibility_flags = ["nodejs_compat"]
