@@ -5,6 +5,7 @@ import Footer from '@/components/Footer';
 import ThemeConfig from '@/components/ThemeConfig';
 import PromoBar from '@/components/PromoBar';
 import ReferralHydrator from '@/components/ReferralHydrator';
+import Heartbeat from '@/components/Heartbeat';
 
 export const metadata = {
   title: 'AETHEL PARFUMS | Secret for a Luxurious Life',
@@ -29,6 +30,7 @@ export default function RootLayout({ children }) {
         <Suspense fallback={null}>
           <ReferralHydrator />
         </Suspense>
+        <Heartbeat />
         <div id="toast-container"></div>
       </body>
     </html>

@@ -1,7 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Keep @prisma/client external from webpack if needed
-  serverExternalPackages: ['@prisma/client', '@prisma/adapter-pg', 'pg'],
+  // Cloudflare Pages build needs these bundled or correctly resolved
 };
 
 export default nextConfig;
