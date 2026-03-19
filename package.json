@@ -17,7 +17,7 @@
     "db:seed:supabase:preview": "cross-env PRISMA_DB_PROVIDER=postgres prisma generate --schema prisma/schema.prisma && cross-env PRISMA_DB_PROVIDER=postgres node prisma/seed-supabase-preview.mjs",
     "db:seed:supabase:prod": "cross-env PRISMA_DB_PROVIDER=postgres prisma generate --schema prisma/schema.prisma && cross-env PRISMA_DB_PROVIDER=postgres node prisma/seed-supabase-production.mjs",
     "db:migrate:supabase": "cross-env PRISMA_DB_PROVIDER=postgres prisma migrate deploy --schema prisma/schema.prisma",
-    "cf:build": "cross-env PRISMA_DB_PROVIDER=postgres prisma generate --schema prisma/schema.prisma && opennextjs-cloudflare",
+    "cf:build": "cross-env PRISMA_DB_PROVIDER=postgres prisma generate --schema prisma/schema.prisma && opennextjs-cloudflare build",
     "cf:deploy": "npm run cf:build && wrangler pages deploy .open-next",
     "lint": "eslint"
   },
@@ -43,9 +43,9 @@
     "uuid": "^13.0.0"
   },
   "devDependencies": {
+    "@opennextjs/cloudflare": "^1.17.1",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
-    "opennextjs-cloudflare": "^1.0.0",
     "prisma": "^7.5.0",
     "wrangler": "^4.75.0"
   }
