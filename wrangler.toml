@@ -2,6 +2,11 @@ name = "aethelperfumes"
 pages_build_output_dir = ".open-next"
 compatibility_date = "2024-11-12"
 
+[[d1_databases]]
+binding = "DB"
+database_name = "aethelperfumes"
+database_id = "81bb0984-7b85-4f45-bd8f-bc6a64a0da30"
+
 [env.production]
 compatibility_flags = ["nodejs_compat"]
 
