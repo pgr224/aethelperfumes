@@ -1,6 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Cloudflare Pages build needs these bundled or correctly resolved
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      config.externals.push('better-sqlite3', 'pg', '@prisma/adapter-pg', '@prisma/adapter-better-sqlite3');
+    }
+    return config;
+  },
 };
 
 export default nextConfig;
