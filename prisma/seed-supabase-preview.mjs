@@ -1,13 +1,19 @@
+import 'dotenv/config';
 import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import bcrypt from 'bcryptjs';
 import { Pool } from 'pg';
 
-const connectionString = process.env.DIRECT_URL || process.env.DATABASE_URL;
+let connectionString = process.env.DIRECT_URL || process.env.DATABASE_URL;
 
 if (!connectionString) {
     throw new Error('DIRECT_URL or DATABASE_URL is required for Supabase preview seeding.');
 }
+
+// Strip sslmode from URL so pg uses our explicit ssl config instead of verify-full
+const connUrl = new URL(connectionString);
+connUrl.searchParams.delete('sslmode');
+connectionString = connUrl.toString();
 
 const pool = new Pool({
     connectionString,

@@ -30,34 +30,9 @@ const databaseUrl = process.env.DATABASE_URL;
 const directUrl = process.env.DIRECT_URL || databaseUrl;
 const sqliteUrl = process.env.SQLITE_DATABASE_URL || 'file:./prisma/dev.db';
 
-const getSupabaseRef = () => {
-  const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-  const match = baseUrl.match(/^https:\/\/([^.]+)\.supabase\.co$/);
-  return match ? match[1] : null;
-};
-
-const normalizeSupabaseDirectUrl = (value) => {
-  if (!value) return value;
-  try {
-    const parsed = new URL(value);
-    if (!parsed.hostname.includes('pooler.supabase.com')) return value;
-
-    const ref = getSupabaseRef();
-    if (!ref) return value;
-
-    parsed.hostname = `db.${ref}.supabase.co`;
-    parsed.port = '5432';
-    parsed.searchParams.delete('pgbouncer');
-    return parsed.toString();
-  } catch {
-    return value;
-  }
-};
-
-const cliPostgresUrl = normalizeSupabaseDirectUrl(directUrl);
 const fallbackPostgresUrl = 'postgresql://postgres:postgres@127.0.0.1:5432/postgres?schema=public';
 const hasInvalidSupabaseUrls = isPlaceholder(databaseUrl) || isPlaceholder(directUrl);
-const effectivePostgresUrl = hasInvalidSupabaseUrls ? fallbackPostgresUrl : cliPostgresUrl;
+const effectivePostgresUrl = hasInvalidSupabaseUrls ? fallbackPostgresUrl : directUrl;
 
 if (!isSqlite && hasInvalidSupabaseUrls && isDbTouchingPrismaCommand) {
   throw new Error('DATABASE_URL and DIRECT_URL must contain real Supabase credentials for Prisma DB operations.');
