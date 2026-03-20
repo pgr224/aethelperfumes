@@ -25,31 +25,31 @@
       "problemMatcher": []
     },
     {
-      "label": "Vercel: Deploy Preview",
+      "label": "Cloudflare: Build",
       "type": "shell",
       "command": "npm",
-      "args": ["run", "deploy:preview"],
+      "args": ["run", "cf:build"],
       "problemMatcher": []
     },
     {
-      "label": "Vercel: Deploy Production",
+      "label": "Cloudflare: D1 Migrate (Remote)",
       "type": "shell",
       "command": "npm",
-      "args": ["run", "deploy:prod"],
+      "args": ["run", "cf:d1:migrate"],
       "problemMatcher": []
     },
     {
-      "label": "Supabase: Preview Seed",
+      "label": "Cloudflare: D1 Seed (Remote)",
       "type": "shell",
       "command": "npm",
-      "args": ["run", "db:seed:supabase:preview"],
+      "args": ["run", "cf:d1:seed"],
       "problemMatcher": []
     },
     {
-      "label": "Supabase: Production Seed (Guarded)",
+      "label": "Cloudflare: Deploy Production",
       "type": "shell",
       "command": "npm",
-      "args": ["run", "db:seed:supabase:prod"],
+      "args": ["run", "cf:deploy"],
       "problemMatcher": []
     }
   ]

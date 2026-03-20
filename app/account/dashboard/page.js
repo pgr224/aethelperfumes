@@ -16,6 +16,12 @@ export default function DashboardPage() {
     useEffect(() => {
         const fetchData = async () => {
             try {
+                const adminRes = await fetch('/api/admin/auth', { cache: 'no-store' });
+                if (adminRes.ok) {
+                    router.replace('/admin');
+                    return;
+                }
+
                 // Fetch Settings
                 const setRes = await fetch('/api/admin/settings');
                 const setData = await setRes.json();
@@ -23,14 +29,14 @@ export default function DashboardPage() {
 
                 const res = await fetch('/api/user/profile');
                 if (!res.ok) {
-                    router.push('/account');
+                    router.replace('/account');
                     return;
                 }
                 const data = await res.json();
                 setProfile(data.profile);
             } catch (err) {
                 console.error(err);
-                router.push('/account');
+                router.replace('/account');
             } finally {
                 setLoading(false);
             }

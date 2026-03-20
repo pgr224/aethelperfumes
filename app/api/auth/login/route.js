@@ -3,8 +3,11 @@ export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { getJwtSecret } from '@/lib/jwt-secret';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'aethel-secret-key-2026';
+function isAdminRole(role) {
+    return role === 'admin' || role === 'manager';
+}
 
 export async function POST(request) {
     try {
@@ -34,7 +37,7 @@ export async function POST(request) {
         // Generate JWT token
         const token = jwt.sign(
             { id: user.id, email: user.email, role: user.role },
-            JWT_SECRET,
+            getJwtSecret(),
             { expiresIn: '7d' }
         );
 
@@ -53,8 +56,21 @@ export async function POST(request) {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax',
+            path: '/',
             maxAge: 7 * 24 * 60 * 60 // 7 days
         });
+
+        if (isAdminRole(user.role)) {
+            response.cookies.set({
+                name: 'admin_token',
+                value: token,
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'lax',
+                path: '/',
+                maxAge: 7 * 24 * 60 * 60,
+            });
+        }
 
         return response;
 

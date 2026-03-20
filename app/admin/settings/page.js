@@ -243,6 +243,48 @@ export default function AdminSettings() {
                     </section>
 
                     <section className="admin-section" style={{ background: 'var(--color-black-light)', padding: '2.5rem', borderRadius: 'var(--border-radius-lg)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                        <h3 style={{ marginBottom: '1.5rem', fontSize: '1.1rem', color: 'var(--color-gold)' }}>Email Service (Resend)</h3>
+                        <p style={{ color: 'var(--color-gray)', fontSize: '0.78rem', marginBottom: '1.5rem', lineHeight: 1.5 }}>
+                            Used for password reset emails & transactional notifications. Get a free API key at <a href="https://resend.com" target="_blank" rel="noopener" style={{ color: 'var(--color-gold)' }}>resend.com</a>.
+                        </p>
+                        
+                        <div style={{ marginBottom: '1.5rem' }}>
+                            <label className="admin-label">RESEND API KEY</label>
+                            <input 
+                                type="password"
+                                className="newsletter-form input" 
+                                style={{ width: '100%', padding: '12px' }}
+                                value={settings.resend_api_key || ''}
+                                onChange={e => setSettings({...settings, resend_api_key: e.target.value})}
+                                placeholder="re_xxxxxxxxxx"
+                            />
+                        </div>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                            <div>
+                                <label className="admin-label">SENDER EMAIL</label>
+                                <input 
+                                    className="newsletter-form input" 
+                                    style={{ width: '100%', padding: '12px' }}
+                                    value={settings.smtp_sender_email || ''}
+                                    onChange={e => setSettings({...settings, smtp_sender_email: e.target.value})}
+                                    placeholder="noreply@aethelperfumes.com"
+                                />
+                            </div>
+                            <div>
+                                <label className="admin-label">SENDER NAME</label>
+                                <input 
+                                    className="newsletter-form input" 
+                                    style={{ width: '100%', padding: '12px' }}
+                                    value={settings.smtp_sender_name || ''}
+                                    onChange={e => setSettings({...settings, smtp_sender_name: e.target.value})}
+                                    placeholder="AETHEL PARFUMS"
+                                />
+                            </div>
+                        </div>
+                    </section>
+
+                    <section className="admin-section" style={{ background: 'var(--color-black-light)', padding: '2.5rem', borderRadius: 'var(--border-radius-lg)', border: '1px solid rgba(255,255,255,0.05)' }}>
                         <h3 style={{ marginBottom: '1.5rem', fontSize: '1.1rem', color: 'var(--color-gold)' }}>Intelligence & Automation</h3>
                         
                         <div style={{ marginBottom: '1.5rem' }}>

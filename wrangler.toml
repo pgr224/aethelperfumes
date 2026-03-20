@@ -3,3 +3,8 @@ compatibility_date = "2024-11-18"
 compatibility_flags = [ "nodejs_compat" ]
 pages_build_output_dir = ".open-next"
 
+[[d1_databases]]
+binding = "DB" # i.e. available in your Worker on env.DB
+database_name = "aethelperfumes"
+database_id = "89ffe409-1013-44fd-b6fd-1031354af9bb"
+migrations_dir = "prisma/migrations_d1"

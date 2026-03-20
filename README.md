@@ -1,137 +1,80 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Aethel Perfumes
 
-## Getting Started
+Next.js storefront and admin app with SQLite for localhost and Cloudflare D1 for production.
 
-First, run the development server:
+## Local Development (SQLite)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## One-Click Workflow
-
-Local testing uses SQLite by default. Production deploys use Supabase Postgres.
-
-VS Code one-click tasks:
-
-- `Terminal > Run Task > Local: Dev (SQLite)`
-- `Terminal > Run Task > Local: Seed Admin (SQLite)`
-- `Terminal > Run Task > Local: Seed + Dev (SQLite)`
-- `Terminal > Run Task > Supabase: Preview Seed`
-- `Terminal > Run Task > Supabase: Production Seed (Guarded)`
-- `Terminal > Run Task > Vercel: Deploy Preview`
-- `Terminal > Run Task > Vercel: Deploy Production`
-
-CLI equivalents:
+Run local development against `prisma/dev.db`:
 
 ```bash
 npm run local
+```
+
+Seed local admin data:
+
+```bash
 npm run local:seed
+```
+
+Seed and start together:
+
+```bash
 npm run local:bootstrap
-npm run db:seed:supabase:preview
-npm run db:seed:supabase:prod
-npm run deploy:preview
-npm run deploy:prod
 ```
 
-Local admin login after seeding:
+Required local env in `.env` or `.env.local`:
 
-```text
-admin@aethelparfums.com
-admin123
+```dotenv
+PRISMA_DB_PROVIDER=sqlite
+SQLITE_DATABASE_URL=file:./prisma/dev.db
+JWT_SECRET=replace-with-a-strong-local-secret
 ```
 
-## Supabase Setup
+## Production Deployment (Cloudflare Pages + D1)
 
-This app uses Prisma for all server-side database access. Supabase should therefore be connected as the Postgres database behind Prisma, not by replacing the existing data layer with direct client calls.
-
-Create a local environment file at `.env` so Prisma and Next.js both see the same values. If you want, you can duplicate them into `.env.local` later for local overrides.
+One command deploy with schema update and seed:
 
 ```bash
-DATABASE_URL="postgresql://postgres:[YOUR-SUPABASE-DB-PASSWORD]@db.hyrpuignsmmatkekjaly.supabase.co:5432/postgres?schema=public"
-DIRECT_URL="postgresql://postgres:[YOUR-SUPABASE-DB-PASSWORD]@db.hyrpuignsmmatkekjaly.supabase.co:5432/postgres?schema=public"
-NEXT_PUBLIC_SUPABASE_URL="https://hyrpuignsmmatkekjaly.supabase.co"
-NEXT_PUBLIC_SUPABASE_ANON_KEY="your-anon-key"
-SUPABASE_SERVICE_ROLE_KEY="your-service-role-key"
-JWT_SECRET="change-this-before-production"
+npm run cf:deploy
 ```
 
-Notes:
+`cf:deploy` runs these steps in order:
 
-- `DATABASE_URL` and `DIRECT_URL` require your Supabase Postgres password from Project Settings > Database. The anon key is not sufficient for Prisma.
-- `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` are used by the Supabase client helpers in `lib/supabase`.
-- `SUPABASE_SERVICE_ROLE_KEY` is only needed for privileged server-side Supabase operations. Keep it server-only.
+1. `cf:build` - OpenNext Cloudflare build
+2. `cf:prepare` - cross-platform output preparation (`scripts/prepare-cloudflare-deploy.mjs`)
+3. `cf:d1:migrate` - apply remote D1 migrations from `prisma/migrations_d1`
+4. `cf:d1:seed` - run idempotent seed SQL from `prisma/seed_d1.sql`
+5. `cf:deploy:pages` - deploy `.open-next` to Cloudflare Pages
 
-After setting the variables, run:
+## Cloudflare Prerequisites
+
+1. Authenticate Wrangler:
 
 ```bash
-npm run db:migrate:supabase
-npm run db:seed:supabase:preview
+npx wrangler login
 ```
 
-If this Supabase database is empty and you want the current catalog/admin data loaded, run one of the existing seed scripts after migrations.
-
-The preview seed is non-destructive. It uses `upsert` only, so it is safe for preview/staging databases and will not wipe existing records.
-
-Production seed is separate and guarded:
-
-1. `PRODUCTION_ADMIN_EMAIL` and `PRODUCTION_ADMIN_PASSWORD` must be set.
-2. Password must be at least 12 characters.
-3. `PRODUCTION_SEED_CONFIRM` must exactly equal `I_UNDERSTAND_THIS_TOUCHES_PRODUCTION`.
-
-Then run:
+2. Confirm `wrangler.toml` project and D1 binding are correct.
+3. Set production secret(s) in Cloudflare Pages/Workers:
 
 ```bash
-npm run db:seed:supabase:prod
+npx wrangler secret put JWT_SECRET
 ```
 
-If direct Prisma connectivity to Supabase is blocked from your machine, run [prisma/supabase-init.sql](prisma/supabase-init.sql) in the Supabase SQL Editor to create the tables.
+## VS Code One-Click Tasks
 
-## Learn More
+Use `Terminal > Run Task`:
 
-To learn more about Next.js, take a look at the following resources:
+- `Local: Dev (SQLite)`
+- `Local: Seed Admin (SQLite)`
+- `Local: Seed + Dev (SQLite)`
+- `Cloudflare: Build`
+- `Cloudflare: D1 Migrate (Remote)`
+- `Cloudflare: D1 Seed (Remote)`
+- `Cloudflare: Deploy Production`
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Notes
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The project is already configured for Vercel with [vercel.json](vercel.json).
-
-Required Vercel environment variables:
-
-```bash
-DATABASE_URL=
-DIRECT_URL=
-JWT_SECRET=
-PRISMA_DB_PROVIDER=postgres
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
-SUPABASE_SERVICE_ROLE_KEY=
-PREVIEW_ADMIN_EMAIL=
-PREVIEW_ADMIN_PASSWORD=
-PRODUCTION_ADMIN_EMAIL=
-PRODUCTION_ADMIN_PASSWORD=
-PRODUCTION_SEED_CONFIRM=I_UNDERSTAND_THIS_TOUCHES_PRODUCTION
-```
-
-One-click publish options:
-
-1. In VS Code, run `Vercel: Deploy Production`.
-2. Or import the repo into Vercel once, set the env vars, and every push will auto-deploy.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Supabase runtime/deploy flow has been removed.
+- Local changes never touch production D1 unless you explicitly run `npm run cf:deploy` or D1 task commands.
+- `prisma/seed_d1.sql` is idempotent and safe to run repeatedly.

@@ -4,15 +4,14 @@ import { NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
 import { isValidTransition, buildStatusEntry, appendStatusHistory } from '@/lib/cancellation';
-
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this';
+import { getJwtSecret } from '@/lib/jwt-secret';
 
 async function getAdminUser() {
     const cookieStore = await cookies();
     const token = cookieStore.get('admin_token');
     if (!token) return null;
     try {
-        const decoded = jwt.verify(token.value, JWT_SECRET);
+        const decoded = jwt.verify(token.value, getJwtSecret());
         if (decoded.role !== 'admin' && decoded.role !== 'manager') return null;
         return decoded;
     } catch {

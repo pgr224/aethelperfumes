@@ -5,14 +5,18 @@
   "scripts": {
     "local": "npm run dev",
     "local:bootstrap": "npm run local:seed && npm run local",
-    "build": "prisma generate --schema prisma/schema.prisma && next build",
+    "build": "cross-env PRISMA_DB_PROVIDER=sqlite prisma generate --schema prisma/schema.prisma && next build",
     "dev": "cross-env PRISMA_DB_PROVIDER=sqlite SQLITE_DATABASE_URL=file:./prisma/dev.db prisma generate --schema prisma/schema.sqlite.prisma && cross-env PRISMA_DB_PROVIDER=sqlite SQLITE_DATABASE_URL=file:./prisma/dev.db prisma db push --schema prisma/schema.sqlite.prisma && cross-env PRISMA_DB_PROVIDER=sqlite SQLITE_DATABASE_URL=file:./prisma/dev.db next dev",
     "start": "cross-env PRISMA_DB_PROVIDER=sqlite SQLITE_DATABASE_URL=file:./prisma/dev.db prisma generate --schema prisma/schema.sqlite.prisma && cross-env PRISMA_DB_PROVIDER=sqlite SQLITE_DATABASE_URL=file:./prisma/dev.db prisma db push --schema prisma/schema.sqlite.prisma && cross-env PRISMA_DB_PROVIDER=sqlite SQLITE_DATABASE_URL=file:./prisma/dev.db next start",
     "local:seed": "npm run db:seed:sqlite:admin",
     "db:push:sqlite": "cross-env PRISMA_DB_PROVIDER=sqlite SQLITE_DATABASE_URL=file:./prisma/dev.db prisma db push --schema prisma/schema.sqlite.prisma",
     "db:seed:sqlite:admin": "cross-env PRISMA_DB_PROVIDER=sqlite SQLITE_DATABASE_URL=file:./prisma/dev.db prisma generate --schema prisma/schema.sqlite.prisma && cross-env PRISMA_DB_PROVIDER=sqlite SQLITE_DATABASE_URL=file:./prisma/dev.db prisma db push --schema prisma/schema.sqlite.prisma && cross-env PRISMA_DB_PROVIDER=sqlite SQLITE_DATABASE_URL=file:./prisma/dev.db node prisma/seed-sqlite-admin.mjs",
     "cf:build": "cross-env NEXT_TURBO=0 PRISMA_DB_PROVIDER=sqlite prisma generate --schema prisma/schema.prisma && opennextjs-cloudflare build",
-    "cf:deploy": "npm run cf:build && powershell -Command \"if (Test-Path '.open-next\\_worker.js') { Remove-Item '.open-next\\_worker.js' -Force }; if (Test-Path '.open-next\\worker.js') { Move-Item -Path '.open-next\\worker.js' -Destination '.open-next\\_worker.js' -Force }; if (Test-Path '.open-next\\assets\\*') { Copy-Item -Path '.open-next\\assets\\*' -Destination '.open-next' -Recurse -Force }; Set-Content -Path '.open-next\\_routes.json' -Value '{\\\"version\\\": 1, \\\"include\\\": [\\\"/*\\\"], \\\"exclude\\\": [\\\"/_next/static/*\\\", \\\"/images/*\\\", \\\"/uploads/*\\\"]}'\" && npx wrangler pages deploy .open-next --project-name aethelperfumes --commit-dirty=true",
+    "cf:prepare": "node scripts/prepare-cloudflare-deploy.mjs",
+    "cf:d1:migrate": "npx wrangler d1 migrations apply aethelperfumes --remote --config wrangler.toml",
+    "cf:d1:seed": "npx wrangler d1 execute aethelperfumes --remote --config wrangler.toml --file prisma/seed_d1.sql",
+    "cf:deploy:pages": "npx wrangler pages deploy .open-next --project-name aethelperfumes --commit-dirty=true",
+    "cf:deploy": "npm run cf:build && npm run cf:prepare && npm run cf:d1:migrate && npm run cf:d1:seed && npm run cf:deploy:pages",
     "lint": "eslint"
   },
   "dependencies": {

@@ -60,6 +60,8 @@ model User {
   referredById    Int?
   referredBy      User?     @relation("UserReferrals", fields: [referredById], references: [id])
   referrals       User[]    @relation("UserReferrals")
+  resetToken        String?
+  resetTokenExpiry  DateTime?
   createdAt       DateTime  @default(now())
   orders          Order[]
   referralsGiven  Referral[] @relation("Referrer")

@@ -2,11 +2,13 @@ import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
+import { getJwtSecret } from '@/lib/jwt-secret';
 
 export const dynamic = 'force-dynamic';
-export const runtime = 'nodejs';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this';
+function isAdminRole(role) {
+    return role === 'admin' || role === 'manager';
+}
 
 export async function POST(request) {
     try {
@@ -33,7 +35,7 @@ export async function POST(request) {
 
         const token = jwt.sign(
             { userId: user.id, email: user.email, role: user.role },
-            JWT_SECRET,
+            getJwtSecret(),
             { expiresIn: '1d' }
         );
 
@@ -54,14 +56,19 @@ export async function POST(request) {
 
 export async function GET() {
     const cookieStore = await cookies();
-    const token = cookieStore.get('admin_token');
+    const token = cookieStore.get('admin_token') ?? cookieStore.get('auth_token');
 
     if (!token) {
         return NextResponse.json({ authenticated: false }, { status: 401 });
     }
 
     try {
-        const decoded = jwt.verify(token.value, JWT_SECRET);
+        const decoded = jwt.verify(token.value, getJwtSecret());
+
+        if (!isAdminRole(decoded.role)) {
+            return NextResponse.json({ authenticated: false }, { status: 403 });
+        }
+
         return NextResponse.json({ authenticated: true, user: decoded });
     } catch (error) {
         return NextResponse.json({ authenticated: false }, { status: 401 });
