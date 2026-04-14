@@ -40,13 +40,17 @@ export async function POST(request) {
         );
 
         const cookieStore = await cookies();
-        cookieStore.set('admin_token', token, {
+        const cookieOptions = {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
+            sameSite: 'lax',
             maxAge: 60 * 60 * 24, // 1 day
             path: '/',
-        });
+        };
+        cookieStore.set('admin_token', token, cookieOptions);
+        // Also set auth_token so session is visible across all auth checks
+        // regardless of whether the user logged in via /account or /admin/login.
+        cookieStore.set('auth_token', token, cookieOptions);
 
         return NextResponse.json({ success: true, user: { name: user.name, email: user.email, role: user.role } });
     } catch (error) {
@@ -78,5 +82,6 @@ export async function GET() {
 export async function DELETE() {
     const cookieStore = await cookies();
     cookieStore.delete('admin_token');
+    cookieStore.delete('auth_token');
     return NextResponse.json({ success: true });
 }

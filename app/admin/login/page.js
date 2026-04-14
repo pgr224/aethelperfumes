@@ -44,96 +44,91 @@ export default function AdminLogin() {
     };
 
     return (
-        <div className="admin-login-page" style={{
-            minHeight: '100vh',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            background: 'var(--color-black)'
-        }}>
-            <div className="login-card" style={{
-                width: '100%',
-                maxWidth: '400px',
-                padding: '3rem',
-                background: 'var(--color-black-light)',
-                border: '1px solid rgba(201, 169, 110, 0.2)',
-                borderRadius: 'var(--border-radius-lg)',
-                boxShadow: 'var(--shadow-lg)'
-            }}>
-                <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-                    <h1 className="logo" style={{ fontSize: '2rem' }}>AETHEL<span>ADMIN</span></h1>
-                </div>
+        <div className="admin-login-page">
+            <div className="login-card">
+                <header className="login-header">
+                    <h1 className="admin-logo">AETHEL<span>ADMIN</span></h1>
+                    <p className="login-subtitle">Secure management portal</p>
+                </header>
 
-                <form onSubmit={handleLogin}>
-                    {error && (
-                        <div style={{
-                            background: 'rgba(231, 76, 60, 0.1)',
-                            color: 'var(--color-error)',
-                            padding: '1rem',
-                            borderRadius: 'var(--border-radius)',
-                            marginBottom: '1.5rem',
-                            fontSize: '0.85rem',
-                            textAlign: 'center',
-                            border: '1px solid var(--color-error)'
-                        }}>
-                            {error}
-                        </div>
-                    )}
+                <form className="login-form" onSubmit={handleLogin}>
+                    {error && <div className="login-error">{error}</div>}
 
-                    <div style={{ marginBottom: '1.5rem' }}>
-                        <label style={{
-                            display: 'block',
-                            fontSize: '0.75rem',
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.1em',
-                            color: 'var(--color-gold)',
-                            marginBottom: '0.5rem'
-                        }}>Email Address</label>
+                    <div className="form-group">
+                        <label>Email Address</label>
                         <input
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
-                            className="newsletter-form input"
-                            style={{ width: '100%', padding: '12px 16px' }}
+                            placeholder="admin@aethel.com"
                         />
                     </div>
 
-                    <div style={{ marginBottom: '2rem' }}>
-                        <label style={{
-                            display: 'block',
-                            fontSize: '0.75rem',
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.1em',
-                            color: 'var(--color-gold)',
-                            marginBottom: '0.5rem'
-                        }}>Password</label>
+                    <div className="form-group">
+                        <label>Password</label>
                         <input
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
-                            className="newsletter-form input"
-                            style={{ width: '100%', padding: '12px 16px' }}
+                            placeholder="••••••••"
                         />
                     </div>
 
                     <button
                         type="submit"
-                        className="btn btn-primary"
-                        style={{ width: '100%' }}
+                        className="login-btn"
                         disabled={loading}
                     >
-                        {loading ? 'Authenticating...' : 'Sign In'}
+                        {loading ? 'Verifying...' : 'Sign In to Dashboard'}
                     </button>
                 </form>
 
-                <div style={{ textAlign: 'center', marginTop: '2rem' }}>
-                    <Link href="/" style={{ fontSize: '0.8rem', color: 'var(--color-gray)' }}>
-                        ← Back to Store
+                <div className="login-footer">
+                    <Link href="/">
+                        ← Return to boutique
                     </Link>
                 </div>
             </div>
+
+            <style jsx>{`
+                .admin-login-page {
+                    min-height: 100vh;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background: var(--color-white-off);
+                    padding: 20px;
+                }
+                .login-card {
+                    width: 100%;
+                    max-width: 440px;
+                    padding: 60px;
+                    background: #fff;
+                    border: 1px solid var(--color-gray-light);
+                    border-radius: 12px;
+                    box-shadow: var(--shadow-md);
+                }
+                .login-header { text-align: center; margin-bottom: 40px; }
+                .admin-logo { font-size: 1.5rem; font-weight: 800; letter-spacing: 0.1em; color: var(--color-black); }
+                .admin-logo span { color: var(--color-gray); font-weight: 300; margin-left: 2px; }
+                .login-subtitle { font-size: 0.75rem; text-transform: uppercase; color: var(--color-gray); letter-spacing: 0.05em; margin-top: 5px; }
+                
+                .login-form { display: flex; flex-direction: column; gap: 20px; }
+                .form-group label { display: block; font-size: 0.7rem; text-transform: uppercase; color: var(--color-gray); font-weight: 700; margin-bottom: 8px; letter-spacing: 0.05em; }
+                .form-group input { width: 100%; padding: 14px 16px; border: 1px solid var(--color-gray-light); border-radius: 8px; background: var(--color-white-off); outline: none; transition: border-color 0.2s; font-size: 1rem; }
+                .form-group input:focus { border-color: var(--color-black); }
+                
+                .login-btn { background: var(--color-black); color: #fff; border: none; padding: 16px; border-radius: 8px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: background 0.2s; margin-top: 10px; }
+                .login-btn:hover { background: #000; }
+                .login-btn:disabled { background: #ccc; cursor: not-allowed; }
+                
+                .login-error { background: #fee2e2; color: #dc2626; padding: 12px; border-radius: 8px; font-size: 0.85rem; text-align: center; border: 1px solid #fecaca; }
+                .login-footer { text-align: center; margin-top: 30px; }
+                .login-footer a { font-size: 0.85rem; color: var(--color-gray); text-decoration: underline; }
+                .login-footer a:hover { color: var(--color-black); }
+            `}</style>
         </div>
     );
 }

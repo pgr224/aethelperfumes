@@ -80,58 +80,55 @@ export default function ProductCard({ product }) {
             <Link href={`/products/${product.slug}`} className="pc-image-wrap">
                 <img src={mainImage} alt={product.name} loading="lazy" className="pc-image" />
                 
-                {/* Badge */}
+                {/* Secondary Badge (Top Left) */}
                 {(product.badge || isOutOfStock) && (
-                    <span className={`pc-badge ${isOutOfStock ? 'pc-badge--oos' : ''}`}>
+                    <span className={`pc-badge-top ${isOutOfStock ? 'pc-badge-oos' : 'pc-badge-accent'}`}>
                         {isOutOfStock ? 'Sold Out' : product.badge}
                     </span>
                 )}
 
-                {/* Wishlist Heart — pinned top-right */}
-                <button
-                    className={`pc-wishlist ${isWishlisted ? 'pc-wishlist--active' : ''}`}
-                    onClick={handleWishlist}
-                    aria-label="Add to Wishlist"
-                >
-                    <Heart size={18} fill={isWishlisted ? 'currentColor' : 'none'} />
-                </button>
+                {/* Rating Badge (Top Right) */}
+                {!isOutOfStock && product.rating && (
+                    <div className="pc-rating-overlay">
+                        <span className="star">★</span>
+                        <span className="rating-val">{product.rating}</span>
+                        {product.reviewCount && <span className="review-count">| {product.reviewCount}</span>}
+                    </div>
+                )}
+
+                {/* Category Label (Pinned Bottom) */}
+                {product.category?.name && (
+                    <div className="pc-label-bottom">
+                        {product.category.name}
+                    </div>
+                )}
             </Link>
 
             {/* Body */}
             <div className="pc-body">
-                {product.category?.name && (
-                    <div className="pc-category">{product.category.name}</div>
-                )}
                 <Link href={`/products/${product.slug}`} className="pc-name-link">
                     <h3 className="pc-name">{product.name}</h3>
                 </Link>
-                {product.shortDesc && (
-                    <p className="pc-desc">{product.shortDesc}</p>
-                )}
                 <div className="pc-price">
                     {product.salePrice ? (
                         <>
-                            <span className="pc-price-current">${product.salePrice.toFixed(2)}</span>
-                            <span className="pc-price-original">${product.price.toFixed(2)}</span>
+                            <span className="pc-price-current">₹{product.salePrice.toLocaleString('en-IN')}</span>
+                            <span className="pc-price-original">₹{product.price.toLocaleString('en-IN')}</span>
                         </>
                     ) : (
-                        <span className="pc-price-current">${product.price.toFixed(2)}</span>
+                        <span className="pc-price-current">₹{(product.price || 0).toLocaleString('en-IN')}</span>
                     )}
                 </div>
             </div>
 
             {/* Action Bar */}
-            <div className="pc-actions">
+            <div className="pc-footer">
                 <button
-                    className={`pc-cart-btn ${isOutOfStock ? 'pc-cart-btn--disabled' : ''}`}
+                    className={`pc-atc-btn ${isOutOfStock ? 'disabled' : ''}`}
                     onClick={addToCart}
                     disabled={isOutOfStock}
                 >
-                    <ShoppingBag size={16} />
-                    <span>{isOutOfStock ? 'Sold Out' : 'Add to Bag'}</span>
-                </button>
-                <button className="pc-share-btn" onClick={handleShare} aria-label="Share product">
-                    <Share2 size={16} />
+                    {isOutOfStock ? 'Out of stock' : 'Add to cart'}
                 </button>
             </div>
         </div>

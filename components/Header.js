@@ -12,6 +12,7 @@ export default function Header({ previewSettings = null, isPreview = false }) {
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [cartCount, setCartCount] = useState(0);
+    const [sessionUser, setSessionUser] = useState(null); // null=loading, false=guest, obj=user
     const router = useRouter();
 
     useEffect(() => {
@@ -43,6 +44,20 @@ export default function Header({ previewSettings = null, isPreview = false }) {
             window.removeEventListener('cart-updated', fetchCart);
         };
     }, [isPreview]);
+
+    // Session-aware: detect logged-in user and their role for smart nav link.
+    useEffect(() => {
+        if (isPreview) { setSessionUser(false); return; }
+        fetch('/api/user/profile', { cache: 'no-store' })
+            .then(res => {
+                if (!res.ok) { setSessionUser(false); return null; }
+                return res.json();
+            })
+            .then(data => {
+                setSessionUser(data?.profile ?? false);
+            })
+            .catch(() => setSessionUser(false));
+    }, [isPreview, pathname]);
 
     const [logo, setLogo] = useState(null);
 
@@ -79,44 +94,46 @@ export default function Header({ previewSettings = null, isPreview = false }) {
     if (!isPreview && pathname?.startsWith('/admin')) return null;
 
     return (
-        <header className={`header ${isScrolled ? 'header-solid' : 'header-transparent'}`}>
+        <header className={`header ${isScrolled ? 'header-solid' : 'header-transparent'}`} style={{ 
+            backgroundColor: isScrolled ? '#fff' : 'transparent',
+            borderBottom: isScrolled ? '1px solid #eee' : 'none'
+        }}>
             <div className="header-inner">
-                <Link href="/" className="logo">
+                <Link href="/" className="logo" style={{ color: '#000' }}>
                     {logo ? (
-                        <img src={logo} alt="AETHEL" style={{ height: '35px', objectFit: 'contain' }} />
+                        <img src={logo} alt="AETHEL" style={{ height: '32px', objectFit: 'contain' }} />
                     ) : (
-                        <>AETHEL<span>Paris</span></>
+                        <span style={{ fontWeight: 800, fontSize: '1.4rem', letterSpacing: '0.05em' }}>AETHEL</span>
                     )}
                 </Link>
 
                 <nav className="nav-links">
-                    <Link href="/">Home</Link>
-                    <Link href="/products">Shop</Link>
-                    <Link href="/collections">Collections</Link>
-
-                    <Link href="/blog">Our Story</Link>
-                    <Link href="/contact">Contact</Link>
-                    <Link href="/referrals" style={{ color: 'var(--color-gold)' }}>Referrals</Link>
+                    <Link href="/" style={{ color: '#000' }}>Home</Link>
+                    <Link href="/products" style={{ color: '#000' }}>Shop</Link>
+                    <Link href="/collections" style={{ color: '#000' }}>Collections</Link>
+                    <Link href="/blog" style={{ color: '#000' }}>Skincare</Link>
+                    <Link href="/contact" style={{ color: '#000' }}>Contact</Link>
                 </nav>
 
-                <div className="nav-icons">
-                    <button className="nav-icon" aria-label="Search" onClick={() => setIsSearchOpen(true)}>
-                        <i>🔍</i>
+                <div className="nav-icons" style={{ color: '#000' }}>
+                    <button className="nav-icon" onClick={() => setIsSearchOpen(true)} style={{ color: '#000' }}>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
                     </button>
-                    <Link href="/cart" className="nav-icon" aria-label="Cart">
-                        <i>🛒</i>
-                        {cartCount > 0 && <span className="badge">{cartCount}</span>}
+                    <Link href="/cart" className="nav-icon" style={{ color: '#000' }}>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                        {cartCount > 0 && <span className="badge" style={{ background: '#000', color: '#fff' }}>{cartCount}</span>}
                     </Link>
-                    <Link href="/account" className="nav-icon" aria-label="Account">
-                        <i>👤</i>
+                    <Link href="/account" className="nav-icon" style={{ color: '#000' }}>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                     </Link>
                     <button
                         className={`menu-toggle ${isMobileMenuOpen ? 'active' : ''}`}
                         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                        style={{ color: '#000' }}
                     >
-                        <span></span>
-                        <span></span>
-                        <span></span>
+                        <span style={{ backgroundColor: '#000' }}></span>
+                        <span style={{ backgroundColor: '#000' }}></span>
+                        <span style={{ backgroundColor: '#000' }}></span>
                     </button>
                 </div>
             </div>
@@ -143,10 +160,15 @@ export default function Header({ previewSettings = null, isPreview = false }) {
                 <Link href="/" onClick={() => setIsMobileMenuOpen(false)}>Home</Link>
                 <Link href="/products" onClick={() => setIsMobileMenuOpen(false)}>Shop</Link>
                 <Link href="/collections" onClick={() => setIsMobileMenuOpen(false)}>Collections</Link>
-
                 <Link href="/blog" onClick={() => setIsMobileMenuOpen(false)}>Our Story</Link>
                 <Link href="/contact" onClick={() => setIsMobileMenuOpen(false)}>Contact</Link>
                 <Link href="/referrals" onClick={() => setIsMobileMenuOpen(false)} style={{ color: 'var(--color-gold)' }}>Referrals</Link>
+                {sessionUser && (sessionUser.role === 'admin' || sessionUser.role === 'manager')
+                    ? <Link href="/admin" onClick={() => setIsMobileMenuOpen(false)} style={{ color: 'var(--color-gold)', fontWeight: '600' }}>Admin Panel</Link>
+                    : sessionUser
+                        ? <Link href="/account/dashboard" onClick={() => setIsMobileMenuOpen(false)}>My Account</Link>
+                        : <Link href="/account" onClick={() => setIsMobileMenuOpen(false)}>Login</Link>
+                }
             </div>
 
             <style jsx>{`

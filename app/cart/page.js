@@ -136,11 +136,14 @@ export default function CartPage() {
     return (
         <div className="cart-page">
             <div className="container">
-                <h1 className="section-title" style={{ marginBottom: '3rem' }}>Your Collection</h1>
+                <header className="cart-header">
+                    <h1 className="page-title">Your Collection</h1>
+                    <p className="page-subtitle">Free boutique shipping on orders over {settings.currencySymbol}{settings.freeShippingThreshold}</p>
+                </header>
 
                 {cart.items.length === 0 ? (
                     <div className="cart-empty">
-                        <div className="cart-empty-icon">👜</div>
+                        <div className="cart-empty-icon text-gold">👜</div>
                         <h2>Your bag is currently empty</h2>
                         <p>Discovery awaits. Explore our collection to find your next signature scent.</p>
                         <Link href="/products" className="btn btn-primary btn-lg">Back To Boutique</Link>
@@ -154,105 +157,111 @@ export default function CartPage() {
                                         <img src={item.product.images[0]} alt={item.product.name} />
                                     </div>
                                     <div className="cart-item-body">
-                                        <h3 className="cart-item-name">{item.product.name}</h3>
-                                        <div className="cart-item-variant">{item.product.category.name} | {item.product.volume}</div>
+                                        <div className="cart-item-meta">
+                                            <span className="cart-item-cat">{item.product.category.name}</span>
+                                            <h3 className="cart-item-name">{item.product.name}</h3>
+                                            <span className="cart-item-vol">{item.product.volume}</span>
+                                        </div>
 
                                         {(!item.product.inStock || item.product.stock === 0) ? (
-                                            <div style={{ color: '#e74c3c', fontSize: '0.75rem', fontWeight: '600', textTransform: 'uppercase', marginBottom: '1rem', background: 'rgba(231, 76, 60, 0.1)', padding: '4px 8px', borderRadius: '4px', width: 'fit-content' }}>
-                                                Out of Stock
-                                            </div>
+                                            <div className="stock-alert">Out of Stock</div>
                                         ) : (
-                                            <div className="quantity-selector" style={{ width: 'fit-content', transform: 'scale(0.8)', transformOrigin: 'left' }}>
-                                                <button onClick={() => updateQuantity(item.id, item.quantity - 1)}>−</button>
-                                                <div className="qty">{item.quantity}</div>
-                                                <button onClick={() => updateQuantity(item.id, item.quantity + 1)}>+</button>
+                                            <div className="cart-item-actions">
+                                                <div className="quantity-selector">
+                                                    <button onClick={() => updateQuantity(item.id, item.quantity - 1)}>−</button>
+                                                    <div className="qty">{item.quantity}</div>
+                                                    <button onClick={() => updateQuantity(item.id, item.quantity + 1)}>+</button>
+                                                </div>
+                                                <button className="cart-item-remove" onClick={() => removeItem(item.id)}>Remove</button>
                                             </div>
                                         )}
-
-                                        <button className="cart-item-remove" onClick={() => removeItem(item.id)}>Remove</button>
                                     </div>
                                     <div className="cart-item-price">
                                         {settings.currencySymbol}{((item.product.salePrice || item.product.price) * item.quantity).toFixed(2)}
                                     </div>
                                 </div>
                             ))}
+                            
+                            <Link href="/products" className="continue-shopping">
+                                ← Continue Shopping
+                            </Link>
                         </div>
 
-                        <div className="cart-summary card-glass">
-                            <h3 style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '1rem', marginBottom: '1.5rem' }}>Order Summary</h3>
+                        <div className="cart-summary-card">
+                            <h3 className="summary-title">Summary</h3>
                             
-                            <div className="cart-summary-row">
-                                <span>Subtotal</span>
-                                <span>{settings.currencySymbol}{cart.total.toFixed(2)}</span>
-                            </div>
-                            
-                            <div className="cart-summary-row">
-                                <span>Shipping</span>
-                                <span>{shipping === 0 ? 'Complimentary' : `${settings.currencySymbol}${shipping.toFixed(2)}`}</span>
-                            </div>
-
-                            {/* Coupon Section */}
-                            <div className="promo-section" style={{ margin: '1.5rem 0', padding: '1.5rem 0', borderTop: '1px solid rgba(255,255,255,0.05)', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                                <label style={{ fontSize: '0.7rem', textTransform: 'uppercase', color: 'var(--color-gray)', marginBottom: '0.5rem', display: 'block' }}>Promo Code</label>
-                                <div style={{ display: 'flex', gap: '10px' }}>
-                                    <input 
-                                        type="text" 
-                                        className="cart-promo-input"
-                                        placeholder="Enter code" 
-                                        value={couponCode}
-                                        onChange={e => setCouponCode(e.target.value)}
-                                        style={{ flex: 1, background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '10px', borderRadius: '4px' }}
-                                    />
-                                    <button 
-                                        className="btn btn-sm btn-outline"
-                                        onClick={() => verifyCoupon(couponCode, cart.total)}
-                                    >
-                                        Apply
-                                    </button>
+                            <div className="summary-rows">
+                                <div className="summary-row">
+                                    <span>Subtotal</span>
+                                    <span>{settings.currencySymbol}{cart.total.toFixed(2)}</span>
                                 </div>
-                                {couponError && <p style={{ color: '#e74c3c', fontSize: '0.75rem', marginTop: '5px' }}>{couponError}</p>}
+                                <div className="summary-row">
+                                    <span>Shipping</span>
+                                    <span style={{ color: shipping === 0 ? 'var(--color-accent-green)' : 'inherit' }}>
+                                        {shipping === 0 ? 'Complimentary' : `${settings.currencySymbol}${shipping.toFixed(2)}`}
+                                    </span>
+                                </div>
+
                                 {appliedCoupon && (
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '10px', color: '#2ecc71', fontSize: '0.85rem' }}>
-                                        <span>Coupon {appliedCoupon.code} Applied</span>
+                                    <div className="summary-row discount">
+                                        <span>Discount ({appliedCoupon.code})</span>
                                         <span>-{settings.currencySymbol}{discount.toFixed(2)}</span>
+                                    </div>
+                                )}
+
+                                {useReferralBalance && user && user.referralBalance > 0 && (
+                                    <div className="summary-row discount">
+                                        <span>Referral Balance</span>
+                                        <span>-{settings.currencySymbol}{user.referralBalance.toFixed(2)}</span>
                                     </div>
                                 )}
                             </div>
 
-                            {/* Referral Section */}
+                            <div className="coupon-box">
+                                <div className="input-group">
+                                    <input 
+                                        type="text" 
+                                        placeholder="Promo Code" 
+                                        value={couponCode}
+                                        onChange={e => setCouponCode(e.target.value)}
+                                    />
+                                    <button onClick={() => verifyCoupon(couponCode, cart.total)}>Apply</button>
+                                </div>
+                                {couponError && <p className="error-text">{couponError}</p>}
+                            </div>
+
                             {user && user.referralBalance > 0 && (
-                                <div className="referral-cart-section" style={{ marginBottom: '1.5rem', padding: '1rem', background: 'rgba(201, 169, 110, 0.05)', borderRadius: '8px', border: '1px solid rgba(201, 169, 110, 0.1)' }}>
-                                    <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
+                                <div className="referral-toggle">
+                                    <label className="checkbox-container">
                                         <input 
                                             type="checkbox" 
                                             checked={useReferralBalance}
                                             onChange={e => setUseReferralBalance(e.target.checked)}
                                         />
-                                        <span style={{ fontSize: '0.85rem', color: 'var(--color-gold)' }}>
-                                            Use Referral Balance: {settings.currencySymbol}{user.referralBalance.toFixed(2)}
-                                        </span>
+                                        <span className="checkmark"></span>
+                                        Use Credits ({settings.currencySymbol}{user.referralBalance.toFixed(2)})
                                     </label>
                                 </div>
                             )}
 
-                            <div className="cart-summary-row total">
-                                <span>Estimated Total</span>
-                                <span className="text-gold" style={{ fontSize: '1.5rem' }}>{settings.currencySymbol}{finalTotal.toFixed(2)}</span>
+                            <div className="summary-total">
+                                <span>Total</span>
+                                <span className="final-price">{settings.currencySymbol}{finalTotal.toFixed(2)}</span>
                             </div>
 
                             <button 
                                 onClick={handleProceedToCheckout} 
-                                className="btn btn-primary btn-lg btn-full" 
-                                style={{ marginTop: '1.5rem' }}
+                                className="atc-btn-main" 
                                 disabled={cart.items.some(item => !item.product.inStock || item.product.stock === 0)}
                             >
                                 {cart.items.some(item => !item.product.inStock || item.product.stock === 0) 
-                                    ? 'Remove Out of Stock Items to Proceed' 
-                                    : 'Proceed To Checkout'}
+                                    ? 'Check Stock' 
+                                    : 'Proceed to Checkout'}
                             </button>
 
-                            <div style={{ marginTop: '20px', textAlign: 'center', fontSize: '0.75rem', color: 'var(--color-gray)' }}>
-                                🛡️ Secure, encrypted payment
+                            <div className="secure-checkout-hint">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                                Secure Checkout
                             </div>
                         </div>
                     </div>
@@ -260,28 +269,65 @@ export default function CartPage() {
             </div>
 
             <style jsx>{`
-                .cart-page { padding: 120px 0 80px; min-height: 80vh; background: #0a0a0a; }
-                .cart-grid { display: grid; grid-template-columns: 1fr 400px; gap: 40px; }
-                .cart-item { display: grid; grid-template-columns: 120px 1fr 100px; gap: 20px; padding: 20px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
-                .cart-item-image { height: 120px; border-radius: 8px; overflow: hidden; background: #111; }
-                .cart-item-image img { width: 100%; height: 100%; object-fit: cover; }
-                .cart-item-name { font-size: 1.1rem; color: #fff; margin-bottom: 5px; }
-                .cart-item-variant { font-size: 0.8rem; color: var(--color-gray); margin-bottom: 15px; }
-                .cart-item-remove { background: none; border: none; color: #e74c3c; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; padding: 0; }
-                .cart-item-price { text-align: right; color: var(--color-gold); font-weight: 600; font-size: 1.1rem; }
+                .cart-page { padding: 140px 0 100px; min-height: 80vh; background: var(--color-white-off); }
+                .cart-header { text-align: center; margin-bottom: 4rem; }
+                .page-title { font-family: var(--font-heading); font-size: 2.5rem; margin-bottom: 1rem; }
+                .page-subtitle { font-size: 0.9rem; color: var(--color-gray); letter-spacing: 0.05em; }
                 
-                .cart-summary { padding: 30px; height: fit-content; position: sticky; top: 100px; }
-                .cart-summary-row { display: flex; justify-content: space-between; margin-bottom: 15px; color: #ccc; }
-                .cart-summary-row.total { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px; margin-top: 15px; font-weight: bold; color: #fff; }
+                .cart-grid { display: grid; grid-template-columns: 1fr 380px; gap: 60px; align-items: start; }
                 
-                .cart-empty { text-align: center; padding: 60px 0; }
+                .cart-item { display: grid; grid-template-columns: 140px 1fr auto; gap: 30px; padding-bottom: 30px; margin-bottom: 30px; border-bottom: 1px solid var(--color-gray-light); }
+                .cart-item-image { background: #fff; border-radius: 8px; overflow: hidden; height: 160px; border: 1px solid var(--color-gray-light); }
+                .cart-item-image img { width: 100%; height: 100%; object-fit: contain; }
+                
+                .cart-item-cat { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-gray); }
+                .cart-item-name { font-size: 1.25rem; font-family: var(--font-heading); margin: 4px 0; }
+                .cart-item-vol { font-size: 0.8rem; color: var(--color-gray); display: block; margin-bottom: 15px; }
+                
+                .cart-item-actions { display: flex; align-items: center; gap: 20px; margin-top: 15px; }
+                .cart-item-remove { background: none; border: none; font-size: 0.75rem; text-transform: uppercase; color: var(--color-gray); cursor: pointer; text-decoration: underline; }
+                .cart-item-remove:hover { color: var(--color-black); }
+                
+                .cart-item-price { font-weight: 600; font-size: 1.25rem; }
+                
+                .continue-shopping { display: inline-block; font-size: 0.9rem; color: var(--color-black); font-weight: 500; margin-top: 20px; }
+                
+                .cart-summary-card { background: #fff; padding: 30px; border-radius: 12px; border: 1px solid var(--color-gray-light); position: sticky; top: 120px; }
+                .summary-title { font-family: var(--font-heading); font-size: 1.5rem; margin-bottom: 20px; }
+                .summary-rows { display: flex; flex-direction: column; gap: 12px; margin-bottom: 25px; }
+                .summary-row { display: flex; justify-content: space-between; font-size: 0.95rem; }
+                .summary-row.discount { color: var(--color-accent-green); font-weight: 500; }
+                
+                .coupon-box { margin-bottom: 25px; padding: 20px 0; border-top: 1px solid var(--color-gray-light); }
+                .input-group { display: flex; border: 1px solid var(--color-gray-light); border-radius: 6px; overflow: hidden; }
+                .input-group input { flex: 1; border: none; padding: 10px 15px; outline: none; font-size: 0.9rem; background: var(--color-white-off); }
+                .input-group button { background: var(--color-black); color: #fff; border: none; padding: 0 20px; font-weight: 600; font-size: 0.8rem; cursor: pointer; }
+                .error-text { font-size: 0.75rem; color: var(--color-error); mt: 10px; }
+
+                .referral-toggle { margin-bottom: 25px; }
+                
+                .summary-total { border-top: 1px solid var(--color-gray-light); padding-top: 20px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+                .summary-total span { font-weight: 600; font-size: 1.1rem; }
+                .final-price { font-size: 1.75rem !important; color: var(--color-black); }
+                
+                .atc-btn-main { background: var(--color-black); color: #fff; width: 100%; padding: 18px; border: none; border-radius: 8px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: transform 0.2s, background 0.2s; }
+                .atc-btn-main:hover { background: #000; transform: translateY(-2px); }
+                .atc-btn-main:disabled { background: #ccc; cursor: not-allowed; transform: none; }
+                
+                .secure-checkout-hint { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.75rem; color: var(--color-gray); margin-top: 20px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; }
+                
+                .cart-empty { text-align: center; padding: 80px 0; }
                 .cart-empty-icon { font-size: 4rem; margin-bottom: 2rem; }
-                .cart-empty h2 { color: #fff; margin-bottom: 1rem; }
-                .cart-empty p { color: var(--color-gray); margin-bottom: 2rem; }
+                .cart-empty h2 { font-family: var(--font-heading); font-size: 2rem; margin-bottom: 1rem; }
+                .cart-empty p { color: var(--color-gray); margin-bottom: 3rem; max-width: 400px; margin-inline: auto; }
 
                 @media (max-width: 991px) {
-                    .cart-grid { grid-template-columns: 1fr; }
-                    .cart-summary { position: static; }
+                    .cart-grid { grid-template-columns: 1fr; gap: 40px; }
+                    .cart-summary-card { position: static; }
+                }
+                @media (max-width: 500px) {
+                    .cart-item { grid-template-columns: 100px 1fr; }
+                    .cart-item-price { grid-column: 1 / -1; text-align: right; margin-top: -30px; }
                 }
             `}</style>
         </div>

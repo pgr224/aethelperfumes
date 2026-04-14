@@ -1,4 +1,3 @@
-import prisma from '@/lib/prisma';
 export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
@@ -11,6 +10,7 @@ function isAdminRole(role) {
 
 export async function POST(request) {
     try {
+        const { default: prisma } = await import('@/lib/prisma');
         const body = await request.json();
         const { email, password } = body;
 

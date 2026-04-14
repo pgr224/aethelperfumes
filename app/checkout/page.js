@@ -193,272 +193,279 @@ export default function CheckoutPage() {
     return (
         <div className="checkout-page">
             <div className="container">
-                <h1 className="section-title text-center" style={{ marginBottom: '3rem' }}>Secure Checkout</h1>
+                <header className="checkout-header">
+                    <h1 className="page-title">Checkout</h1>
+                    <div className="breadcrumb">
+                        <Link href="/cart">Cart</Link>
+                        <span className="separator">/</span>
+                        <span className="current">Checkout</span>
+                    </div>
+                </header>
 
                 <div className="checkout-grid">
-                    <div className="checkout-form-container">
+                    <div className="checkout-main">
                         {!user && (
-                            <div className="checkout-guest-notice card-glass mb-4">
-                                <p>Already have an account?</p>
-                                <Link href="/account" className="btn btn-outline btn-sm">Log in for faster checkout</Link>
+                            <div className="guest-login-notice">
+                                <p>Already have an account? <Link href="/account">Log in</Link> for a faster experience.</p>
                             </div>
                         )}
 
-                        <form className="checkout-form card-glass" onSubmit={handleCheckout}>
-                            {error && <div className="error-message">{error}</div>}
+                        <form className="checkout-form" onSubmit={handleCheckout}>
+                            {error && <div className="error-banner">{error}</div>}
 
-                            <h3 className="form-section-title">Contact Information</h3>
-                            <div className="form-group">
-                                <label>Email Address</label>
-                                <input type="email" name="email" defaultValue={user?.email || ''} required />
-                            </div>
-
-                            <h3 className="form-section-title mt-4">Shipping Address</h3>
-                            <div className="form-row">
+                            <section className="checkout-section">
+                                <h2 className="section-heading">Contact Information</h2>
                                 <div className="form-group">
-                                    <label>First Name</label>
-                                    <input type="text" name="firstName" defaultValue={user?.firstName || ''} required />
+                                    <label>Email Address</label>
+                                    <input type="email" name="email" defaultValue={user?.email || ''} required placeholder="email@example.com" />
                                 </div>
+                            </section>
+
+                            <section className="checkout-section">
+                                <h2 className="section-heading">Shipping Address</h2>
+                                <div className="form-row">
+                                    <div className="form-group">
+                                        <label>First Name</label>
+                                        <input type="text" name="firstName" defaultValue={user?.firstName || ''} required placeholder="First Name" />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Last Name</label>
+                                        <input type="text" name="lastName" defaultValue={user?.lastName || ''} required placeholder="Last Name" />
+                                    </div>
+                                </div>
+
                                 <div className="form-group">
-                                    <label>Last Name</label>
-                                    <input type="text" name="lastName" defaultValue={user?.lastName || ''} required />
+                                    <label>Street Address</label>
+                                    <input type="text" name="address" required placeholder="House number and street name" />
                                 </div>
-                            </div>
 
-                            <div className="form-group">
-                                <label>Address</label>
-                                <input type="text" name="address" required />
-                            </div>
+                                <div className="form-row">
+                                    <div className="form-group">
+                                        <label>City</label>
+                                        <input type="text" name="city" required placeholder="City" />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Postal Code</label>
+                                        <input type="text" name="zipCode" required placeholder="ZIP / Postcode" />
+                                    </div>
+                                </div>
 
-                            <div className="form-row">
                                 <div className="form-group">
-                                    <label>City</label>
-                                    <input type="text" name="city" required />
+                                    <label>Country / Region</label>
+                                    <select 
+                                        name="country" 
+                                        value={selectedCountry}
+                                        onChange={e => setSelectedCountry(e.target.value)}
+                                        required
+                                    >
+                                        <option value="IN">India</option>
+                                        <option value="FR">France</option>
+                                        <option value="UK">United Kingdom</option>
+                                        <option value="US">United States</option>
+                                        <option value="AE">UAE</option>
+                                        <option value="INT">International (Other)</option>
+                                    </select>
                                 </div>
-                                <div className="form-group">
-                                    <label>Postal Code</label>
-                                    <input type="text" name="zipCode" required />
-                                </div>
-                            </div>
+                            </section>
 
-                            <div className="form-group">
-                                <label>Country</label>
-                                <select 
-                                    name="country" 
-                                    value={selectedCountry}
-                                    onChange={e => setSelectedCountry(e.target.value)}
-                                    required
-                                >
-                                    <option value="IN">India</option>
-                                    <option value="FR">France</option>
-                                    <option value="UK">United Kingdom</option>
-                                    <option value="US">United States</option>
-                                    <option value="AE">UAE</option>
-                                    <option value="INT">International (Other)</option>
-                                </select>
-                            </div>
-
-                            <h3 className="form-section-title mt-4">Payment Method</h3>
-                            
-                            {selectedCountry === 'IN' ? (
-                                <div className="payment-options">
-                                    <label className={`payment-option ${paymentMethod === 'UPI' ? 'active' : ''}`}>
-                                        <input type="radio" name="paymentMethod" value="UPI" checked={paymentMethod === 'UPI'} onChange={() => setPaymentMethod('UPI')} />
-                                        <span>UPI App / QR Scan</span>
-                                    </label>
-                                    <label className={`payment-option ${paymentMethod === 'COD' ? 'active' : ''}`}>
-                                        <input type="radio" name="paymentMethod" value="COD" checked={paymentMethod === 'COD'} onChange={() => setPaymentMethod('COD')} />
-                                        <span>Cash on Delivery</span>
-                                    </label>
+                            <section className="checkout-section">
+                                <h2 className="section-heading">Payment Information</h2>
+                                <div className="payment-selector">
+                                    {selectedCountry === 'IN' ? (
+                                        <>
+                                            <label className={`payment-card ${paymentMethod === 'UPI' ? 'active' : ''}`}>
+                                                <input type="radio" name="paymentMethod" value="UPI" checked={paymentMethod === 'UPI'} onChange={() => setPaymentMethod('UPI')} />
+                                                <div className="payment-card-content">
+                                                    <span className="payment-card-title">UPI / QR Code</span>
+                                                    <span className="payment-card-desc">GPay, PhonePe, Paytm</span>
+                                                </div>
+                                            </label>
+                                            <label className={`payment-card ${paymentMethod === 'COD' ? 'active' : ''}`}>
+                                                <input type="radio" name="paymentMethod" value="COD" checked={paymentMethod === 'COD'} onChange={() => setPaymentMethod('COD')} />
+                                                <div className="payment-card-content">
+                                                    <span className="payment-card-title">Cash on Delivery</span>
+                                                    <span className="payment-card-desc">Pay when items arrive</span>
+                                                </div>
+                                            </label>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <label className={`payment-card ${paymentMethod === 'CREDIT_CARD' ? 'active' : ''}`}>
+                                                <input type="radio" name="paymentMethod" value="CREDIT_CARD" checked={paymentMethod === 'CREDIT_CARD'} onChange={() => setPaymentMethod('CREDIT_CARD')} />
+                                                <div className="payment-card-content">
+                                                    <span className="payment-card-title">Credit / Debit Card</span>
+                                                    <span className="payment-card-desc">Visa, Mastercard, Amex</span>
+                                                </div>
+                                            </label>
+                                            <label className={`payment-card ${paymentMethod === 'PAYPAL' ? 'active' : ''}`}>
+                                                <input type="radio" name="paymentMethod" value="PAYPAL" checked={paymentMethod === 'PAYPAL'} onChange={() => setPaymentMethod('PAYPAL')} />
+                                                <div className="payment-card-content">
+                                                    <span className="payment-card-title">PayPal</span>
+                                                    <span className="payment-card-desc">Fast and secure</span>
+                                                </div>
+                                            </label>
+                                        </>
+                                    )}
                                 </div>
-                            ) : (
-                                <div className="payment-options">
-                                    <label className={`payment-option ${paymentMethod === 'CREDIT_CARD' ? 'active' : ''}`}>
-                                        <input type="radio" name="paymentMethod" value="CREDIT_CARD" checked={paymentMethod === 'CREDIT_CARD'} onChange={() => setPaymentMethod('CREDIT_CARD')} />
-                                        <span>Credit / Debit Card</span>
-                                    </label>
-                                    <label className={`payment-option ${paymentMethod === 'PAYPAL' ? 'active' : ''}`}>
-                                        <input type="radio" name="paymentMethod" value="PAYPAL" checked={paymentMethod === 'PAYPAL'} onChange={() => setPaymentMethod('PAYPAL')} />
-                                        <span>PayPal</span>
-                                    </label>
-                                </div>
-                            )}
 
-                            <div className="payment-simulation mt-3">
-                                {paymentMethod === 'UPI' && selectedCountry === 'IN' && settings.upiId && (
-                                    <div className="upi-payment card-glass mb-4" style={{ padding: '20px', textAlign: 'center', border: '1px solid var(--color-gold)' }}>
-                                        <p style={{ color: 'var(--color-gold)', fontWeight: 'bold', marginBottom: '1rem' }}>Pay via UPI (Scan QR)</p>
-                                        <div style={{ background: '#fff', padding: '10px', display: 'inline-block', borderRadius: '8px', margin: '0 auto 1rem' }}>
-                                            <img 
-                                                src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=${settings.upiId}&pn=Aethel%20Perfumes&am=${Math.max(0, cart.total + calculateShipping() - discount - (useReferralBalance && user ? user.referralBalance : 0)).toFixed(2)}&cu=INR`} 
-                                                alt="UPI QR Code" 
-                                            />
+                                <div className="payment-details-info">
+                                    {paymentMethod === 'UPI' && selectedCountry === 'IN' && settings.upiId && (
+                                        <div className="qr-box">
+                                            <div className="qr-header">
+                                                <span className="qr-badge">Instant Pay</span>
+                                                <p>Scan to pay precisely {settings.currencySymbol}{Math.max(0, cart.total + calculateShipping() - discount - (useReferralBalance && user ? user.referralBalance : 0)).toFixed(2)}</p>
+                                            </div>
+                                            <div className="qr-image-wrap">
+                                                <img 
+                                                    src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=${settings.upiId}&pn=Aethel%20Perfumes&am=${Math.max(0, cart.total + calculateShipping() - discount - (useReferralBalance && user ? user.referralBalance : 0)).toFixed(2)}&cu=INR`} 
+                                                    alt="UPI QR Code" 
+                                                />
+                                            </div>
+                                            <div className="qr-footer">
+                                                <code>VPA: {settings.upiId}</code>
+                                            </div>
                                         </div>
-                                        <p style={{ fontSize: '0.8rem', color: '#888' }}>VPA: {settings.upiId}</p>
-                                    </div>
-                                )}
-                                {paymentMethod === 'COD' && (
-                                    <div className="payment-notice">
-                                        <span className="icon">💵</span>
-                                        <p>Pay with cash upon delivery. An additional processing fee may apply on premium orders.</p>
-                                    </div>
-                                )}
-                                {paymentMethod === 'CREDIT_CARD' && (
-                                    <div className="payment-notice">
-                                        <span className="icon">💳</span>
-                                        <p>You will be redirected to our secure Stripe gateway to complete your transaction protecting your details.</p>
-                                    </div>
-                                )}
-                                {paymentMethod === 'PAYPAL' && (
-                                    <div className="payment-notice">
-                                        <span className="icon">🅿️</span>
-                                        <p>You will be securely redirected to PayPal to complete your purchase.</p>
-                                    </div>
-                                )}
-                            </div>
+                                    )}
+                                    {paymentMethod === 'COD' && (
+                                        <div className="method-notice">
+                                            <span>💵</span> Pay precisely the order total in cash to our delivery partner.
+                                        </div>
+                                    )}
+                                    {paymentMethod === 'CREDIT_CARD' && (
+                                        <div className="method-notice">
+                                            <span>💳</span> You will be redirected to our secure payment gateway (Stripe).
+                                        </div>
+                                    )}
+                                    {paymentMethod === 'PAYPAL' && (
+                                        <div className="method-notice">
+                                            <span>🅿️</span> You will be logged into PayPal to authorize the transaction.
+                                        </div>
+                                    )}
+                                </div>
+                            </section>
 
                             <button 
                                 type="submit" 
-                                className="btn btn-primary btn-full btn-lg mt-4" 
+                                className="atc-btn-main btn-lg mt-4" 
                                 disabled={processing || cart.items.some(item => !item.product.inStock || item.product.stock === 0)}
                             >
                                 {processing ? 'Processing Order...' : 
-                                 cart.items.some(item => !item.product.inStock || item.product.stock === 0) ? 'Items Out of Stock' :
-                                 `Complete Order • ${settings.currencySymbol}${Math.max(0, cart.total + calculateShipping() - discount - (useReferralBalance && user ? user.referralBalance : 0)).toFixed(2)}`}
+                                 cart.items.some(item => !item.product.inStock || item.product.stock === 0) ? 'Correct Order to Proceed' :
+                                 `Complete Purchase • ${settings.currencySymbol}${Math.max(0, cart.total + calculateShipping() - discount - (useReferralBalance && user ? user.referralBalance : 0)).toFixed(2)}`}
                             </button>
                         </form>
                     </div>
 
-                    <div className="checkout-summary card-glass">
-                        <h3>Order Summary</h3>
-
-                        <div className="summary-items">
-                            {cart.items.map(item => (
-                                <div key={item.id} className="summary-item">
-                                    <div className="summary-item-image">
-                                        <img src={item.product.images[0]} alt={item.product.name} />
-                                        <span className="summary-item-qty">{item.quantity}</span>
+                    <aside className="checkout-sidebar">
+                        <div className="order-summary-box">
+                            <h3 className="summary-title">Order Summary</h3>
+                            <div className="summary-items">
+                                {cart.items.map(item => (
+                                    <div key={item.id} className="summary-item">
+                                        <div className="summary-item-img">
+                                            <img src={item.product.images[0]} alt={item.product.name} />
+                                            <span className="summary-item-qty">{item.quantity}</span>
+                                        </div>
+                                        <div className="summary-item-info">
+                                            <h4>{item.product.name}</h4>
+                                            <p>{item.product.volume}</p>
+                                        </div>
+                                        <div className="summary-item-price">
+                                            {settings.currencySymbol}{((item.product.salePrice || item.product.price) * item.quantity).toFixed(2)}
+                                        </div>
                                     </div>
-                                    <div className="summary-item-details">
-                                        <h4>{item.product.name}</h4>
-                                        <p>{item.product.volume}</p>
-                                        {(!item.product.inStock || item.product.stock === 0) && (
-                                            <span style={{ color: '#ff4b4b', fontSize: '0.7rem', fontWeight: 'bold' }}>OUT OF STOCK - Please remove from cart</span>
-                                        )}
+                                ))}
+                            </div>
+
+                            <div className="summary-calculations">
+                                <div className="sum-row">
+                                    <span>Subtotal</span>
+                                    <span>{settings.currencySymbol}{cart.total.toFixed(2)}</span>
+                                </div>
+                                <div className="sum-row">
+                                    <span>Shipping</span>
+                                    <span>{calculateShipping() === 0 ? 'Free' : `${settings.currencySymbol}${calculateShipping().toFixed(2)}`}</span>
+                                </div>
+                                {(discount > 0 || (useReferralBalance && user?.referralBalance > 0)) && (
+                                    <div className="sum-row discount">
+                                        <span>Total Savings</span>
+                                        <span>-{settings.currencySymbol}{(discount + (useReferralBalance ? user.referralBalance : 0)).toFixed(2)}</span>
                                     </div>
-                                    <div className="summary-item-price">
-                                        {settings.currencySymbol}{((item.product.salePrice || item.product.price) * item.quantity).toFixed(2)}
-                                     </div>
-                                 </div>
-                            ))}
-                        </div>
-
-                        <div className="promo-section" style={{ marginBottom: '2rem', paddingTop: '1.5rem', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-                            <div className="form-group mb-2">
-                                <label style={{ fontSize: '0.65rem' }}>HAVE A COUPON?</label>
-                                <div style={{ display: 'flex', gap: '10px' }}>
-                                    <input 
-                                        type="text" 
-                                        placeholder="Enter code" 
-                                        style={{ flex: 1, padding: '8px' }}
-                                        value={couponCode}
-                                        onChange={e => setCouponCode(e.target.value)}
-                                    />
-                                    <button 
-                                        type="button" 
-                                        className="btn btn-dark btn-sm"
-                                        style={{ padding: '8px 15px' }}
-                                        onClick={applyCoupon}
-                                    >
-                                        Apply
-                                    </button>
+                                )}
+                                <div className="sum-total">
+                                    <span>Total</span>
+                                    <span>{settings.currencySymbol}{Math.max(0, cart.total + calculateShipping() - (discount + (useReferralBalance ? user.referralBalance : 0))).toFixed(2)}</span>
                                 </div>
-                                {couponError && <p style={{ color: '#e74c3c', fontSize: '0.75rem', marginTop: '5px' }}>{couponError}</p>}
-                                {appliedCoupon && <p style={{ color: '#2ecc71', fontSize: '0.75rem', marginTop: '5px' }}>Coupon {appliedCoupon.code} applied!</p>}
-                            </div>
-
-                            {user && user.referralBalance > 0 && (
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '1rem', padding: '10px', background: 'rgba(201,169,110,0.05)', borderRadius: '4px' }}>
-                                    <input 
-                                        type="checkbox" 
-                                        checked={useReferralBalance}
-                                        onChange={e => setUseReferralBalance(e.target.checked)}
-                                    />
-                                    <span style={{ fontSize: '0.8rem', color: 'var(--color-gold)' }}>
-                                        Use Referral Balance: {settings.currencySymbol}{user.referralBalance.toFixed(2)}
-                                    </span>
-                                </div>
-                            )}
-                        </div>
-
-                        <div className="summary-totals">
-                            <div className="summary-row">
-                                <span>Subtotal</span>
-                                <span>{settings.currencySymbol}{cart.total.toFixed(2)}</span>
-                            </div>
-                            <div className="summary-row">
-                                <span>Shipping</span>
-                                <span>{calculateShipping() === 0 ? 'Complimentary' : `${settings.currencySymbol}${calculateShipping().toFixed(2)}`}</span>
-                            </div>
-
-                            {(discount > 0 || (useReferralBalance && user?.referralBalance > 0)) && (
-                                <div className="summary-row" style={{ color: '#2ecc71' }}>
-                                    <span>Discount</span>
-                                    <span>-{settings.currencySymbol}{(discount + (useReferralBalance ? user.referralBalance : 0)).toFixed(2)}</span>
-                                </div>
-                            )}
-
-                            <div className="summary-row total mt-3 pt-3" style={{ borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-                                <span>Total</span>
-                                <span className="text-gold" style={{ fontSize: '1.5rem', fontFamily: "'Playfair Display', serif" }}>
-                                    {settings.currencySymbol}{Math.max(0, cart.total + calculateShipping() - (discount + (useReferralBalance ? user.referralBalance : 0))).toFixed(2)}
-                                </span>
                             </div>
                         </div>
-                    </div>
+                    </aside>
                 </div>
             </div>
 
             <style jsx>{`
-                .checkout-page { padding: 120px 0 80px; background-color: #0a0a0a; min-height: 100vh; }
-                .checkout-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 40px; align-items: start; }
-                .checkout-guest-notice { padding: 20px; display: flex; justify-content: space-between; align-items: center; }
-                .checkout-form { padding: 40px; }
-                .form-section-title { font-size: 1.2rem; margin-bottom: 20px; color: #fff; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+                .checkout-page { padding: 140px 0 100px; background: var(--color-white-off); min-height: 100vh; }
+                .checkout-header { text-align: center; margin-bottom: 4rem; }
+                .page-title { font-family: var(--font-heading); font-size: 2.5rem; margin-bottom: 0.5rem; }
+                .breadcrumb { font-size: 0.8rem; color: var(--color-gray); letter-spacing: 0.05em; text-transform: uppercase; display: flex; justify-content: center; gap: 10px; }
+                .separator { opacity: 0.3; }
+                .current { color: var(--color-black); font-weight: 600; }
+                
+                .checkout-grid { display: grid; grid-template-columns: 1fr 400px; gap: 60px; align-items: start; }
+                
+                .guest-login-notice { background: #fff; padding: 20px; border-radius: 8px; border: 1px solid var(--color-gray-light); margin-bottom: 30px; font-size: 0.9rem; }
+                .guest-login-notice a { color: var(--color-black); font-weight: 600; text-decoration: underline; }
+                
+                .checkout-form { display: flex; flex-direction: column; gap: 40px; }
+                .checkout-section { background: #fff; padding: 30px; border-radius: 12px; border: 1px solid var(--color-gray-light); }
+                .section-heading { font-family: var(--font-heading); font-size: 1.5rem; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid var(--color-gray-light); }
+                
                 .form-group { margin-bottom: 20px; }
-                .form-group label { display: block; color: #ddd; font-size: 0.8rem; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em; }
-                .form-group input, .form-group select { width: 100%; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); padding: 12px 15px; color: #fff; border-radius: 4px; outline: none; transition: border-color 0.3s; }
-                .form-group input:focus, .form-group select:focus { border-color: #c9a96e; }
-                .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+                .form-group label { display: block; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-gray); margin-bottom: 8px; font-weight: 600; }
+                .form-group input, .form-group select { width: 100%; border: 1px solid var(--color-gray-light); padding: 12px 16px; border-radius: 6px; background: var(--color-white-off); outline: none; transition: border-color 0.2s; font-size: 0.95rem; }
+                .form-group input:focus { border-color: var(--color-black); }
+                .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+                .payment-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 30px; }
+                .payment-card { border: 1px solid var(--color-gray-light); padding: 20px; border-radius: 8px; cursor: pointer; transition: all 0.2s; background: var(--color-white-off); }
+                .payment-card:hover { border-color: var(--color-black); }
+                .payment-card.active { border-color: var(--color-black); background: #fff; box-shadow: var(--shadow-sm); }
+                .payment-card input { display: none; }
+                .payment-card-title { display: block; font-weight: 600; font-size: 0.95rem; margin-bottom: 4px; }
+                .payment-card-desc { display: block; font-size: 0.75rem; color: var(--color-gray); }
+
+                .qr-box { background: var(--color-white-off); padding: 40px; border-radius: 12px; text-align: center; border: 2px dashed var(--color-gray-light); }
+                .qr-header { margin-bottom: 25px; }
+                .qr-badge { background: var(--color-black); color: #fff; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; padding: 4px 10px; border-radius: 20px; margin-bottom: 10px; display: inline-block; }
+                .qr-header p { font-size: 0.85rem; color: var(--color-gray); }
+                .qr-image-wrap { background: #fff; display: inline-block; padding: 15px; border-radius: 8px; box-shadow: var(--shadow-sm); margin-bottom: 20px; }
+                .qr-footer code { font-size: 0.85rem; background: #eee; padding: 4px 10px; border-radius: 4px; }
                 
-                .payment-notice { display: flex; gap: 15px; padding: 20px; background: rgba(201,169,110,0.1); border: 1px solid rgba(201,169,110,0.3); border-radius: 8px; }
-                .payment-notice p { margin: 0; color: #c9a96e; font-size: 0.9rem; line-height: 1.5; }
-                
-                .payment-options { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
-                .payment-option { flex: 1; display: flex; align-items: center; gap: 10px; padding: 15px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; cursor: pointer; transition: all 0.3s; margin: 0; min-width: 150px; }
-                .payment-option:hover { border-color: rgba(201,169,110,0.5); }
-                .payment-option.active { border-color: var(--color-gold); background: rgba(201,169,110,0.05); }
-                .payment-option span { color: #fff; font-weight: 500; font-size: 0.9rem; }
-                
-                .checkout-summary { padding: 30px; position: sticky; top: 100px; }
-                .checkout-summary h3 { font-size: 1.2rem; margin-bottom: 20px; color: #fff; padding-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); }
-                .summary-items { max-height: 40vh; overflow-y: auto; padding-right: 10px; margin-bottom: 20px; }
+                .method-notice { padding: 20px; background: #f9f9f9; border-radius: 8px; border: 1px solid #eee; font-size: 0.9rem; color: var(--color-gray); }
+                .method-notice span { font-size: 1.2rem; margin-right: 10px; }
+
+                .order-summary-box { background: #fff; padding: 30px; border-radius: 12px; border: 1px solid var(--color-gray-light); position: sticky; top: 120px; }
+                .summary-items { max-height: 380px; overflow-y: auto; margin-bottom: 25px; }
                 .summary-item { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
-                .summary-item-image { position: relative; width: 60px; height: 60px; border-radius: 8px; overflow: hidden; background: #000; }
-                .summary-item-image img { width: 100%; height: 100%; object-fit: cover; }
-                .summary-item-qty { position: absolute; top: -5px; right: -5px; background: #c9a96e; color: #000; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold; }
-                .summary-item-details { flex: 1; }
-                .summary-item-details h4 { font-size: 0.9rem; color: #fff; margin-bottom: 5px; }
-                .summary-item-details p { font-size: 0.8rem; color: #888; margin: 0; }
-                .summary-item-price { font-weight: 600; color: #c9a96e; }
+                .summary-item-img { position: relative; width: 64px; height: 64px; border-radius: 6px; overflow: hidden; border: 1px solid #eee; flex-shrink: 0; }
+                .summary-item-img img { width: 100%; height: 100%; object-fit: contain; }
+                .summary-item-qty { position: absolute; top: -5px; right: -5px; background: var(--color-black); color: #fff; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold; }
+                .summary-item-info h4 { font-size: 0.9rem; margin-bottom: 2px; }
+                .summary-item-info p { font-size: 0.75rem; color: var(--color-gray); }
+                .summary-item-price { margin-left: auto; font-weight: 600; font-size: 0.9rem; }
                 
-                .summary-row { display: flex; justify-content: space-between; margin-bottom: 10px; color: #ccc; font-size: 0.9rem; }
-                .text-gold { color: #c9a96e; }
-                .error-message { background: rgba(255, 75, 75, 0.1); color: #ff4b4b; padding: 12px; border-radius: 4px; margin-bottom: 20px; font-size: 0.9rem; border: 1px solid rgba(255, 75, 75, 0.2); }
+                .summary-calculations { border-top: 1px solid var(--color-gray-light); padding-top: 20px; display: flex; flex-direction: column; gap: 12px; }
+                .sum-row { display: flex; justify-content: space-between; font-size: 0.9rem; color: var(--color-gray); }
+                .sum-row.discount { color: var(--color-accent-green); }
+                .sum-total { border-top: 1px solid var(--color-gray-light); padding-top: 15px; margin-top: 5px; display: flex; justify-content: space-between; font-weight: 700; font-size: 1.25rem; color: var(--color-black); }
+
+                .atc-btn-main { background: var(--color-black); color: #fff; width: 100%; padding: 18px; border: none; border-radius: 8px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: transform 0.2s, background 0.2s; }
+                .atc-btn-main:hover { background: #000; transform: translateY(-2px); }
+                .atc-btn-main:disabled { background: #ccc; cursor: not-allowed; transform: none; }
+                .error-banner { padding: 15px; background: var(--color-error); color: #fff; border-radius: 6px; margin-bottom: 20px; font-size: 0.9rem; }
 
                 @media (max-width: 991px) {
                     .checkout-grid { grid-template-columns: 1fr; }
-                    .checkout-summary { position: static; order: -1; }
+                    .checkout-sidebar { display: none; }
                 }
             `}</style>
         </div>

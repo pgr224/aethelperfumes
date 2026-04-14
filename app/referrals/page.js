@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import Header from '@/components/Header';
 import { Gift, Share2, Users, Wallet, Copy, CheckCircle, Zap, Bell, Mail, MessageSquare, Award, Star, Trophy } from 'lucide-react';
 
@@ -8,6 +9,8 @@ export default function ReferralDashboard() {
     const [loading, setLoading] = useState(true);
     const [copied, setCopied] = useState(false);
     const [saving, setSaving] = useState(false);
+    const [isAuthenticated, setIsAuthenticated] = useState(null); // null=loading, true=logged in, false=not logged in
+    const [userRole, setUserRole] = useState(null);
     const [settings, setSettings] = useState({
         emailNotifications: true,
         whatsappNotifications: true
@@ -19,13 +22,24 @@ export default function ReferralDashboard() {
 
     const fetchData = () => {
         fetch('/api/user/referrals')
-            .then(res => res.json())
+            .then(res => {
+                if (res.status === 401) {
+                    setIsAuthenticated(false);
+                    setLoading(false);
+                    return null;
+                }
+                return res.json();
+            })
             .then(json => {
-                setData(json);
-                setSettings({
-                    emailNotifications: json.emailNotifications ?? true,
-                    whatsappNotifications: json.whatsappNotifications ?? true
-                });
+                if (json) {
+                    setIsAuthenticated(true);
+                    setUserRole(json.role);
+                    setData(json);
+                    setSettings({
+                        emailNotifications: json.emailNotifications ?? true,
+                        whatsappNotifications: json.whatsappNotifications ?? true
+                    });
+                }
                 setLoading(false);
             })
             .catch(e => {
@@ -63,11 +77,142 @@ export default function ReferralDashboard() {
         </div>
     );
 
+    // Non-authenticated users - show promotional content
+    if (isAuthenticated === false) {
+        return (
+            <main className="referrals-page">
+                <Header />
+                <section className="section referral-promo-section">
+                    <div className="container">
+                        <div className="promo-header">
+                            <span className="section-subtitle">The Aethel Circle</span>
+                            <h1 className="section-title">Become an Ambassador<br/><span className="text-gold">and Unlock Rewards</span></h1>
+                            <p className="promo-desc">Join our exclusive community of luxury fragrance enthusiasts. Share your passion, earn credits, and access exclusive benefits.</p>
+                        </div>
+
+                        <div className="promo-benefits">
+                            <BenefitCard 
+                                icon={<Gift size={32} />} 
+                                title="Earn Rewards" 
+                                desc="Get $20 credit for every friend who makes their first purchase through your link"
+                            />
+                            <BenefitCard 
+                                icon={<Users size={32} />} 
+                                title="Build Your Circle" 
+                                desc="Grow your community of like-minded luxury fragrance lovers and share exclusive experiences"
+                            />
+                            <BenefitCard 
+                                icon={<Trophy size={32} />} 
+                                title="Unlock Tiers" 
+                                desc="Reach SILVER and GOLD tiers to unlock higher reward multipliers and exclusive perks"
+                            />
+                            <BenefitCard 
+                                icon={<Star size={32} />} 
+                                title="Premium Access" 
+                                desc="Access exclusive collections, early releases, and special events as a valued ambassador"
+                            />
+                        </div>
+
+                        <div className="promo-cta">
+                            <p>Ready to join the Aethel Circle?</p>
+                            <Link href="/account?ref=ambassador" className="btn btn-primary btn-lg">
+                                Create Your Account
+                            </Link>
+                        </div>
+                    </div>
+                </section>
+
+                <style jsx>{`
+                    .referrals-page {
+                        background: var(--color-black);
+                        min-height: 100vh;
+                        padding-bottom: 80px;
+                    }
+                    .referral-promo-section {
+                        padding-top: 140px;
+                    }
+                    .text-gold { color: var(--color-gold); }
+                    
+                    .promo-header {
+                        text-align: center;
+                        margin-bottom: 80px;
+                    }
+                    .promo-header .section-title {
+                        font-size: 3rem;
+                        line-height: 1.2;
+                        margin: 20px 0;
+                        color: var(--color-white);
+                    }
+                    .promo-desc {
+                        font-size: 1.1rem;
+                        color: var(--color-gray);
+                        max-width: 600px;
+                        margin: 20px auto;
+                        line-height: 1.7;
+                    }
+
+                    .promo-benefits {
+                        display: grid;
+                        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                        gap: 30px;
+                        margin-bottom: 80px;
+                    }
+
+                    .promo-cta {
+                        text-align: center;
+                        background: rgba(201, 169, 110, 0.1);
+                        border: 1px solid rgba(201, 169, 110, 0.2);
+                        border-radius: 30px;
+                        padding: 60px 40px;
+                    }
+                    .promo-cta p {
+                        font-size: 1.25rem;
+                        color: var(--color-white);
+                        margin-bottom: 30px;
+                    }
+                `}</style>
+            </main>
+        );
+    }
+
+    // Admin users - show redirect message
+    if (userRole === 'admin' || userRole === 'manager') {
+        return (
+            <main className="referrals-page">
+                <Header />
+                <div className="container">
+                    <div className="admin-message" style={{ 
+                        textAlign: 'center', 
+                        marginTop: '10rem',
+                        background: 'rgba(52, 152, 219, 0.08)',
+                        border: '1px solid rgba(52, 152, 219, 0.2)',
+                        borderRadius: '16px',
+                        padding: '40px'
+                    }}>
+                        <h2 style={{ color: '#3498db', marginBottom: '16px' }}>Admin Access</h2>
+                        <p style={{ color: 'var(--color-gray)', fontSize: '1rem' }}>
+                            This page is reserved for customer ambassadors. Please visit the admin dashboard to manage platform settings.
+                        </p>
+                        <Link href="/admin" style={{ 
+                            display: 'inline-block',
+                            marginTop: '20px',
+                            color: '#3498db',
+                            textDecoration: 'underline'
+                        }}>
+                            Go to Admin Dashboard →
+                        </Link>
+                    </div>
+                </div>
+            </main>
+        );
+    }
+
+    // Authenticated non-admin users - show ambassador dashboard
     if (!data) return (
         <div className="referrals-page">
             <Header />
             <div className="container">
-                <p style={{ textAlign: 'center', marginTop: '10rem' }}>Failed to load ambassador data. Please log in.</p>
+                <p style={{ textAlign: 'center', marginTop: '10rem' }}>Loading ambassador dashboard...</p>
             </div>
         </div>
     );
@@ -623,6 +768,53 @@ function NotificationToggle({ icon, label, checked, onChange }) {
                 }
                 .toggle-btn.checked .toggle-knob {
                     transform: translateX(20px);
+                }
+            `}</style>
+        </div>
+    );
+}
+
+function BenefitCard({ icon, title, desc }) {
+    return (
+        <div className="benefit-card">
+            <div className="benefit-icon">{icon}</div>
+            <h3 className="benefit-title">{title}</h3>
+            <p className="benefit-desc">{desc}</p>
+            <style jsx>{`
+                .benefit-card {
+                    background: rgba(201, 169, 110, 0.05);
+                    border: 1px solid rgba(201, 169, 110, 0.15);
+                    border-radius: 20px;
+                    padding: 40px 30px;
+                    text-align: center;
+                    transition: all 0.3s ease;
+                }
+                .benefit-card:hover {
+                    background: rgba(201, 169, 110, 0.1);
+                    border-color: rgba(201, 169, 110, 0.3);
+                    transform: translateY(-5px);
+                }
+                .benefit-icon {
+                    width: 60px;
+                    height: 60px;
+                    background: rgba(201, 169, 110, 0.15);
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin: 0 auto 20px;
+                    color: var(--color-gold);
+                }
+                .benefit-title {
+                    font-size: 1.25rem;
+                    font-weight: 600;
+                    margin-bottom: 12px;
+                    color: var(--color-white);
+                }
+                .benefit-desc {
+                    font-size: 0.9rem;
+                    color: var(--color-gray);
+                    line-height: 1.6;
                 }
             `}</style>
         </div>

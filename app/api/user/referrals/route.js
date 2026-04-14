@@ -13,6 +13,7 @@ export async function GET() {
         const userData = await prisma.user.findUnique({
             where: { id: user.id },
             select: {
+                role: true,
                 referralCode: true,
                 referralBalance: true,
                 referralTier: true,
@@ -35,6 +36,7 @@ export async function GET() {
         });
 
         return NextResponse.json({
+            role: userData.role,
             referralCode: userData.referralCode,
             balance: userData.referralBalance,
             tier: userData.referralTier,

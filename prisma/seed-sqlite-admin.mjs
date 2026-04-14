@@ -7,8 +7,8 @@ const adapter = new PrismaBetterSqlite3({ url: sqliteUrl });
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
-    const email = 'admin@aethelparfums.com';
-    const password = 'admin123';
+    const email = 'admin@aethel.com';
+    const password = 'aethel2026';
     const hashedPassword = await bcrypt.hash(password, 10);
 
     await prisma.user.upsert({

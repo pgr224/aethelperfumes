@@ -14,7 +14,7 @@
     "cf:build": "cross-env NEXT_TURBO=0 PRISMA_DB_PROVIDER=sqlite prisma generate --schema prisma/schema.prisma && opennextjs-cloudflare build",
     "cf:prepare": "node scripts/prepare-cloudflare-deploy.mjs",
     "cf:d1:migrate": "npx wrangler d1 migrations apply aethelperfumes --remote --config wrangler.toml",
-    "cf:d1:seed": "npx wrangler d1 execute aethelperfumes --remote --config wrangler.toml --file prisma/seed_d1.sql",
+    "cf:d1:seed": "npx wrangler d1 execute aethelperfumes --remote --config wrangler.toml --file prisma/seed_d1.sql --yes",
     "cf:deploy:pages": "npx wrangler pages deploy .open-next --project-name aethelperfumes --commit-dirty=true",
     "cf:deploy": "npm run cf:build && npm run cf:prepare && npm run cf:d1:migrate && npm run cf:d1:seed && npm run cf:deploy:pages",
     "lint": "eslint"
