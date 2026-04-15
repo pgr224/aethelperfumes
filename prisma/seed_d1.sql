@@ -1,15 +1,15 @@
--- Seed Admin User (admin@aethelperfumes.com / Admin@Aethel@2026)
+-- Seed Admin User (admin@aethel.com / aethel2026)
 INSERT INTO "User" ("email", "password", "name", "firstName", "lastName", "role", "referralTier", "referralBalance", "refEmailNotifications", "refWhatsAppNotifications", "createdAt")
-VALUES ('admin@aethelperfumes.com', '$2b$10$tKtWI14gI56TW2u7njHwxewhBLluCQhiQrqo1E0aBxs8IwUUOf45y', 'Aethel Admin', 'Aethel', 'Admin', 'admin', 'BRONZE', 0, 1, 1, CURRENT_TIMESTAMP)
+VALUES ('admin@aethel.com', '$2b$10$eOMwG8Yxyzmqh07vYd1dqOWqjrxJt8DaFvsH9H3857WioN46ekULG', 'Aethel Admin', 'Aethel', 'Admin', 'admin', 'BRONZE', 0, 1, 1, CURRENT_TIMESTAMP)
 ON CONFLICT DO NOTHING;
 
 UPDATE "User"
 SET
-	"password" = '$2b$10$tKtWI14gI56TW2u7njHwxewhBLluCQhiQrqo1E0aBxs8IwUUOf45y',
+	"password" = '$2b$10$eOMwG8Yxyzmqh07vYd1dqOWqjrxJt8DaFvsH9H3857WioN46ekULG',
 	"name" = 'Aethel Admin',
 	"role" = 'admin',
 	"referralTier" = 'BRONZE'
-WHERE "email" = 'admin@aethelperfumes.com';
+WHERE "email" = 'admin@aethel.com';
 
 -- Seed Initial Category
 INSERT INTO "Category" ("name", "slug", "description", "productCount", "createdAt")

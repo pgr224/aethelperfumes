@@ -6,10 +6,14 @@ import bcrypt from 'bcryptjs';
 export async function POST(request) {
     try {
         const body = await request.json();
-        const { email, otp, newPassword } = body;
+        const { email, otp, token, newPassword } = body;
 
-        if (!email || !otp || !newPassword) {
-            return NextResponse.json({ error: 'Email, OTP, and new password are required' }, { status: 400 });
+        if (!email || !newPassword) {
+            return NextResponse.json({ error: 'Email and new password are required' }, { status: 400 });
+        }
+
+        if (!otp && !token) {
+            return NextResponse.json({ error: 'A reset code or token is required' }, { status: 400 });
         }
 
         if (newPassword.length < 8) {
@@ -35,11 +39,33 @@ export async function POST(request) {
             return NextResponse.json({ error: 'Reset code has expired. Please request a new one.' }, { status: 400 });
         }
 
-        // Verify OTP
-        const isValidOtp = await bcrypt.compare(otp, user.resetToken);
+        // The stored resetToken is "tokenHash|otpHash" (new format) or just a single hash (legacy)
+        const storedHash = user.resetToken;
+        const parts = storedHash.split('|');
+        let isValid = false;
 
-        if (!isValidOtp) {
-            return NextResponse.json({ error: 'Invalid reset code' }, { status: 400 });
+        if (parts.length === 2) {
+            // New format: tokenHash|otpHash
+            const [tokenHash, otpHash] = parts;
+
+            if (token) {
+                // Verify the URL token
+                isValid = await bcrypt.compare(token, tokenHash);
+            } else if (otp) {
+                // Verify the OTP code
+                isValid = await bcrypt.compare(otp, otpHash);
+            }
+        } else {
+            // Legacy format: single hash (OTP only)
+            if (otp) {
+                isValid = await bcrypt.compare(otp, storedHash);
+            } else if (token) {
+                isValid = await bcrypt.compare(token, storedHash);
+            }
+        }
+
+        if (!isValid) {
+            return NextResponse.json({ error: 'Invalid reset code or link' }, { status: 400 });
         }
 
         // Hash new password

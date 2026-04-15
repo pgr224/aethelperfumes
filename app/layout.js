@@ -10,6 +10,11 @@ import Heartbeat from '@/components/Heartbeat';
 export const metadata = {
   title: 'AETHEL PARFUMS | Secret for a Luxurious Life',
   description: 'Experience the Kings and Queens Collections from Aethel Parfums. Extraordinary fragrances crafted for a luxurious life.',
+  icons: {
+    icon: '/favicon.ico',
+    shortcut: '/favicon.ico',
+    apple: '/favicon.ico',
+  },
 };
 
 export const viewport = {

@@ -11,8 +11,9 @@ export async function GET(request) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
+        const userId = user.id || user.userId;
         const profile = await prisma.user.findUnique({
-            where: { id: user.id },
+            where: { id: userId },
             include: {
                 orders: {
                     orderBy: { createdAt: 'desc' },

@@ -2,6 +2,7 @@ import prisma from '@/lib/prisma';
 export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
 import { sendPasswordResetEmail } from '@/lib/email';
 
 export async function POST(request) {
@@ -16,7 +17,7 @@ export async function POST(request) {
         // Always return success to prevent email enumeration
         const successResponse = NextResponse.json({
             success: true,
-            message: 'If an account with that email exists, a password reset code has been sent.'
+            message: 'If an account with that email exists, a password reset link has been sent.'
         });
 
         // Find user
@@ -28,26 +29,42 @@ export async function POST(request) {
             return successResponse;
         }
 
-        // Generate 6-digit OTP
+        // Generate a secure random token for the reset link
+        const resetToken = crypto.randomBytes(32).toString('hex');
+
+        // Also generate 6-digit OTP as fallback
         const otp = String(Math.floor(100000 + Math.random() * 900000));
 
-        // Hash the OTP before storing
+        // Hash both the token and OTP before storing
+        // Store them combined: token|otpHash
+        const hashedToken = await bcrypt.hash(resetToken, 10);
         const hashedOtp = await bcrypt.hash(otp, 10);
 
-        // Store hashed OTP with 15-minute expiry
+        // Store both hashes separated by pipe: tokenHash|otpHash
+        const combinedHash = `${hashedToken}|${hashedOtp}`;
+
+        // Store hashed token with 15-minute expiry
         const expiry = new Date(Date.now() + 15 * 60 * 1000);
 
         await prisma.user.update({
             where: { email: user.email },
             data: {
-                resetToken: hashedOtp,
+                resetToken: combinedHash,
                 resetTokenExpiry: expiry,
             }
         });
 
-        // Send OTP email
+        // Build the reset URL from the request origin
+        const origin = request.headers.get('origin')
+            || request.headers.get('x-forwarded-host') && `https://${request.headers.get('x-forwarded-host')}`
+            || request.headers.get('host') && `${request.headers.get('x-forwarded-proto') || 'http'}://${request.headers.get('host')}`
+            || 'http://localhost:3000';
+
+        const resetUrl = `${origin}/account/reset-password?token=${encodeURIComponent(resetToken)}&email=${encodeURIComponent(user.email)}`;
+
+        // Send email with both link and OTP
         try {
-            await sendPasswordResetEmail(user.email, otp);
+            await sendPasswordResetEmail(user.email, otp, resetUrl);
         } catch (emailErr) {
             console.error('Failed to send reset email:', emailErr);
             return NextResponse.json({
