@@ -4,6 +4,18 @@ import { readJsonResponse } from '@/lib/read-json-response';
 
 export default function ThemeConfig() {
     useEffect(() => {
+        const applyStoredTheme = () => {
+            try {
+                const html = document.documentElement;
+                const savedTheme = localStorage.getItem('site-theme');
+                const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                const initialTheme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
+                html.setAttribute('data-theme', initialTheme);
+            } catch (error) {
+                console.error('Theme init failed', error);
+            }
+        };
+
         const applyTheme = async () => {
              try {
                 const res = await fetch('/api/admin/settings');
@@ -17,6 +29,7 @@ export default function ThemeConfig() {
                 if (settings.primaryColor) {
                     document.documentElement.style.setProperty('--color-gold', settings.primaryColor);
                     document.documentElement.style.setProperty('--color-gold-light', settings.primaryColor + 'cc');
+                    document.documentElement.style.setProperty('--color-gold-muted', settings.primaryColor + '26');
                 }
 
                 if (settings.siteBackground && settings.siteBackground !== 'none') {
@@ -35,6 +48,8 @@ export default function ThemeConfig() {
                 console.error('Theme apply failed', e);
              }
         };
+
+        applyStoredTheme();
         applyTheme();
     }, []);
 

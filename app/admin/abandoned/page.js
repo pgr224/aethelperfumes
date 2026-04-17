@@ -1,11 +1,12 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { Ghost, AlertCircle, Mail, DollarSign, Clock, ShoppingCart, ArrowRight, ExternalLink } from 'lucide-react';
+import { Ghost, AlertCircle, Mail, DollarSign, Clock, ShoppingCart, Trash2 } from 'lucide-react';
 
 export default function AbandonedAnalytics() {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [sending, setSending] = useState(null); // ID of order/cart being sent recovery
+    const [sending, setSending] = useState(null);
+    const [clearing, setClearing] = useState(null); // sessionId or 'all'
 
     useEffect(() => {
         fetchData();
@@ -26,7 +27,6 @@ export default function AbandonedAnalytics() {
 
     const handleRecovery = async (orderId, email) => {
         setSending(orderId);
-        // Simulate sending email
         setTimeout(() => {
             console.log(`--- RECOVERY EMAIL SENT ---`);
             console.log(`To: ${email}`);
@@ -36,6 +36,28 @@ export default function AbandonedAnalytics() {
             setSending(null);
             alert(`Recovery sequence initiated for ${email}. Luxury incentive (10% OFF) dispatched.`);
         }, 1500);
+    };
+
+    const clearCart = async (sessionId = null) => {
+        const label = sessionId ? `session ...${sessionId.slice(-8)}` : 'ALL sessions';
+        if (!confirm(`Clear cart items for ${label}? This cannot be undone.`)) return;
+
+        setClearing(sessionId || 'all');
+        try {
+            const res = await fetch('/api/admin/abandoned', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(sessionId ? { sessionId } : {}),
+            });
+            const result = await res.json();
+            if (!res.ok) throw new Error(result.error || 'Request failed');
+            alert(result.message);
+            fetchData();
+        } catch (err) {
+            alert(`Error: ${err.message}`);
+        } finally {
+            setClearing(null);
+        }
     };
 
     if (loading) return <div className="admin-container">Decrypting Abandoned Signals...</div>;
@@ -162,9 +184,34 @@ export default function AbandonedAnalytics() {
 
                 {/* Silent Carts List */}
                 <div>
-                    <h3 style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <ShoppingCart size={20} /> Dormant Cart Radar
-                    </h3>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
+                        <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <ShoppingCart size={20} /> Dormant Cart Radar
+                        </h3>
+                        {data.staleCarts.length > 0 && (
+                            <button
+                                onClick={() => clearCart(null)}
+                                disabled={clearing === 'all'}
+                                style={{
+                                    display: 'flex', alignItems: 'center', gap: '6px',
+                                    background: 'rgba(231,76,60,0.12)',
+                                    border: '1px solid rgba(231,76,60,0.4)',
+                                    color: '#e74c3c',
+                                    borderRadius: '6px',
+                                    padding: '6px 14px',
+                                    fontSize: '0.72rem',
+                                    fontWeight: '700',
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '0.06em',
+                                    cursor: clearing === 'all' ? 'not-allowed' : 'pointer',
+                                    opacity: clearing === 'all' ? 0.6 : 1,
+                                }}
+                            >
+                                <Trash2 size={13} />
+                                {clearing === 'all' ? 'Clearing...' : `Clear All (${data.staleCarts.length})`}
+                            </button>
+                        )}
+                    </div>
                     <div style={{ display: 'grid', gap: '1.5rem' }}>
                         {data.staleCarts.length === 0 ? (
                             <div style={{ padding: '2rem', background: 'var(--color-black-light)', borderRadius: 'var(--border-radius-lg)', color: 'var(--color-gray)', textAlign: 'center', fontSize: '0.8rem' }}>
@@ -191,9 +238,26 @@ export default function AbandonedAnalytics() {
                                     <span style={{ fontSize: '0.65rem', color: 'var(--color-gray)' }}>
                                         Last active: {new Date(cart.lastActivity).toLocaleTimeString()}
                                     </span>
-                                    <span style={{ fontSize: '0.7rem', color: 'var(--color-gold)', opacity: 0.6 }}>
-                                        Awaiting conversion
-                                    </span>
+                                    <button
+                                        onClick={() => clearCart(cart.sessionId)}
+                                        disabled={clearing === cart.sessionId}
+                                        style={{
+                                            display: 'flex', alignItems: 'center', gap: '5px',
+                                            background: 'rgba(231,76,60,0.1)',
+                                            border: '1px solid rgba(231,76,60,0.35)',
+                                            color: '#e74c3c',
+                                            borderRadius: '5px',
+                                            padding: '5px 10px',
+                                            fontSize: '0.65rem',
+                                            fontWeight: '700',
+                                            textTransform: 'uppercase',
+                                            cursor: clearing === cart.sessionId ? 'not-allowed' : 'pointer',
+                                            opacity: clearing === cart.sessionId ? 0.5 : 1,
+                                        }}
+                                    >
+                                        <Trash2 size={11} />
+                                        {clearing === cart.sessionId ? 'Clearing...' : 'Clear Cart'}
+                                    </button>
                                 </div>
                             </div>
                         ))}

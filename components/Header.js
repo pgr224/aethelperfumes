@@ -7,6 +7,7 @@ import { readJsonResponse } from '@/lib/read-json-response';
 export default function Header({ previewSettings = null, isPreview = false }) {
     const pathname = usePathname();
     const [isScrolled, setIsScrolled] = useState(false);
+    const [theme, setTheme] = useState('light');
 
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -14,6 +15,12 @@ export default function Header({ previewSettings = null, isPreview = false }) {
     const [cartCount, setCartCount] = useState(0);
     const [sessionUser, setSessionUser] = useState(null); // null=loading, false=guest, obj=user
     const router = useRouter();
+
+    useEffect(() => {
+        if (isPreview) return;
+        const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+        setTheme(currentTheme);
+    }, [isPreview]);
 
     useEffect(() => {
         if (isPreview) return; // Skip scroll listener in preview
@@ -91,15 +98,19 @@ export default function Header({ previewSettings = null, isPreview = false }) {
         }
     };
 
+    const toggleTheme = () => {
+        const nextTheme = theme === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', nextTheme);
+        localStorage.setItem('site-theme', nextTheme);
+        setTheme(nextTheme);
+    };
+
     if (!isPreview && pathname?.startsWith('/admin')) return null;
 
     return (
-        <header className={`header ${isScrolled ? 'header-solid' : 'header-transparent'}`} style={{ 
-            backgroundColor: isScrolled ? '#fff' : 'transparent',
-            borderBottom: isScrolled ? '1px solid #eee' : 'none'
-        }}>
+        <header className={`header ${isScrolled ? 'header-solid' : 'header-transparent'}`}>
             <div className="header-inner">
-                <Link href="/" className="logo" style={{ color: '#000' }}>
+                <Link href="/" className="logo">
                     {logo ? (
                         <img src={logo} alt="AETHEL" style={{ height: '32px', objectFit: 'contain' }} />
                     ) : (
@@ -108,32 +119,36 @@ export default function Header({ previewSettings = null, isPreview = false }) {
                 </Link>
 
                 <nav className="nav-links">
-                    <Link href="/" style={{ color: '#000' }}>Home</Link>
-                    <Link href="/products" style={{ color: '#000' }}>Shop</Link>
-                    <Link href="/collections" style={{ color: '#000' }}>Collections</Link>
-                    <Link href="/blog" style={{ color: '#000' }}>Skincare</Link>
-                    <Link href="/contact" style={{ color: '#000' }}>Contact</Link>
+                    <Link href="/">Home</Link>
+                    <Link href="/products">Shop</Link>
+                    <Link href="/collections">Collections</Link>
+                    <Link href="/blog">Skincare</Link>
+                    <Link href="/contact">Contact</Link>
                 </nav>
 
-                <div className="nav-icons" style={{ color: '#000' }}>
-                    <button className="nav-icon" onClick={() => setIsSearchOpen(true)} style={{ color: '#000' }}>
+                <div className="nav-icons">
+                    <button className="theme-toggle" onClick={toggleTheme} aria-label="Toggle theme" title="Toggle light/dark theme">
+                        <svg className="sun-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="m6.34 17.66-1.41 1.41"></path><path d="m19.07 4.93-1.41 1.41"></path></svg>
+                        <svg className="moon-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"></path></svg>
+                    </button>
+
+                    <button className="nav-icon" onClick={() => setIsSearchOpen(true)}>
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
                     </button>
-                    <Link href="/cart" className="nav-icon" style={{ color: '#000' }}>
+                    <Link href="/cart" className="nav-icon">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-                        {cartCount > 0 && <span className="badge" style={{ background: '#000', color: '#fff' }}>{cartCount}</span>}
+                        {cartCount > 0 && <span className="badge">{cartCount}</span>}
                     </Link>
-                    <Link href="/account" className="nav-icon" style={{ color: '#000' }}>
+                    <Link href="/account" className="nav-icon">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                     </Link>
                     <button
                         className={`menu-toggle ${isMobileMenuOpen ? 'active' : ''}`}
                         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                        style={{ color: '#000' }}
                     >
-                        <span style={{ backgroundColor: '#000' }}></span>
-                        <span style={{ backgroundColor: '#000' }}></span>
-                        <span style={{ backgroundColor: '#000' }}></span>
+                        <span></span>
+                        <span></span>
+                        <span></span>
                     </button>
                 </div>
             </div>
